@@ -33,14 +33,14 @@ app.use(express.json()); // parse json
 
 
 // services (auth, chat, agent, billing) are proxied through the gateway
-
 app.use("/api/auth",proxy(process.env.AUTH_SERVICE))
 app.use("/api/me",protect,getCurrentUser)
 
+
+// only authenticated users can access other services
+//user details are send to those services using headers(proxyWithUser middleware)
 app.use("/api/chat",protect,proxyWithUser(process.env.CHAT_SERVICE))
-
 app.use("/api/agent",protect,proxyWithUser(process.env.AGENT_SERVICE))
-
 app.use("/api/billing",protect,proxyWithUser(process.env.BILLING_SERVICE))
 
 
