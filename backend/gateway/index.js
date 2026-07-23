@@ -26,7 +26,7 @@ app.use(
 
 // middlewares
 app.use(helmet()); // security headers
-app.use(morgan("dev")); // logging
+app.use(morgan("dev")); // logs fetched api's 
 app.use(cookieParser()); // parse cookies
 app.use(express.json()); // parse json
 
@@ -38,7 +38,7 @@ app.use("/api/me",protect,getCurrentUser)
 
 
 // only authenticated users can access other services
-//user details are send to those services using headers(proxyWithUser middleware)
+// user details are send to those services using headers(proxyWithUser middleware)
 app.use("/api/chat",protect,proxyWithUser(process.env.CHAT_SERVICE))
 app.use("/api/agent",protect,proxyWithUser(process.env.AGENT_SERVICE))
 app.use("/api/billing",protect,proxyWithUser(process.env.BILLING_SERVICE))

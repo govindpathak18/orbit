@@ -29,7 +29,7 @@ const messageSchema = new mongoose.Schema({
       enum: ["user","assistant"]
     },
     content: String,
-    images: [String],
+    images: [String], // images link
     artifacts: [artifactSchema]
   }, {
     timestamps: true
