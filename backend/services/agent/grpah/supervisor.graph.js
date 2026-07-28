@@ -75,6 +75,7 @@ workflow.addEdge(
 // adding conditional edges based on the agent type in the state
 workflow.addConditionalEdges(
   "router",(state) => {
+
     // based on the agent type, we route to the appropriate node
     switch (state.agent) {
 
@@ -103,6 +104,7 @@ workflow.addConditionalEdges(
         return "chat";
 
     }
+    
   },
   // after the router node, we route to the appropriate agent node
   { 

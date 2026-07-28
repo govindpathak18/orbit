@@ -23,6 +23,7 @@ export const AgentState = Annotation.Root({
 
     model: Annotation(),
 
+    // for vision and pdfRag-agent
     file: Annotation(),
 
     // from coding agent

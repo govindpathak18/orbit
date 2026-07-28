@@ -3,42 +3,25 @@
 //  and explaining charts or tables in images
 
 import fs from "fs/promises";
-
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-
 import { getModel } from "../utils/model.js";
-
 import { checkAgentLimit } from "../config/agentRateLimit.js";
-
 import { deductCredits } from "../utils/deductCredits.js";
 
 export const visionAgent = async (state) => {
-
   try {
 
-    await checkAgentLimit(
-      state.userId,
-      "image"
-    );
+    await checkAgentLimit(state.userId, "image");
 
-    await deductCredits(
-      state.userId,
-      "image"
-    );
+    await deductCredits(state.userId, "image");
 
-    const llm =
-      getModel("vision");
+    const llm = getModel("vision");
 
-    const imageBuffer =
-      await fs.readFile(
-        state.file.path
-      );
-
-    const base64Image =
-      imageBuffer.toString("base64");
+    // read the buffer from the state and convert to base64
+    const imageBuffer = await fs.readFile(state.file.path);
+    const base64Image = imageBuffer.toString("base64");
 
     const messages = [
-
       new SystemMessage(`
 
 You are orbit Vision Agent.
@@ -56,78 +39,40 @@ Rules:
 `),
 
       new HumanMessage({
-
         content: [
-
           {
-
             type: "text",
-
-            text:
-
-              state.prompt ||
-
-              "Describe this image."
-
+            text: state.prompt || "Describe this image."
           },
-
           {
-
             type: "image_url",
-
-            image_url: {
-
-              url: `data:${state.file.mimetype};base64,${base64Image}`
-
-            }
-
+            image_url: { url: `data:${state.file.mimetype};base64,${base64Image}` }
           }
-
         ]
-
       })
 
     ];
 
-    const response =
-      await llm.invoke(
-        messages
-      );
+    const response = await llm.invoke(messages);
 
     return {
-
       ...state,
-
-      response:
-        response.content
-
+      response: response.content
     };
 
   }
 
   finally {
-
-    if(state.file){
-
-      try{
-
-        await fs.unlink(
-          state.file.path
-        );
-
-        console.log(
-          "Deleted:",
-          state.file.path
-        );
+    if (state.file) {
+      try {
+        // remove the file after generating the response
+        await fs.unlink(state.file.path);
+        console.log("Deleted:", state.file.path);
 
       }
 
-      catch(err){
-
-        console.log(
-          err.message
-        );
-
+      catch (err) {
+        console.log(err.message);
       }
 
     }

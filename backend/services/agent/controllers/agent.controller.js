@@ -34,10 +34,7 @@ export const chat = async (req, res, next) => {
     const result = await graph.invoke({
         prompt,
         conversationId,
-        userId:
-          req.headers[
-          "x-user-id"
-          ],
+        userId:req.headers["x-user-id"],
         agent,
         file: req.file
       });
