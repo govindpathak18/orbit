@@ -12,17 +12,9 @@ import { getModel } from "../utils/model.js";
 
 export const codingAgent = async (state) => {
 
-  await checkAgentLimit(
-    state.userId,
-    "coding"
-  );
-  await deductCredits(
-
-    state.userId,
-
-    "coding"
-
-  );
+  await checkAgentLimit(state.userId,"coding");
+  
+  await deductCredits(state.userId,"coding");
 
   function cleanCode(code = "") {
     return code

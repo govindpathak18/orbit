@@ -107,7 +107,7 @@ export const logout = async (req, res) => {
 };
 
 
-
+// updates user plan
 export const updatePlan = async (req, res) => {
   try {
     const { userId, plan, credits } = req.body;
@@ -128,8 +128,9 @@ export const updatePlan = async (req, res) => {
       Date.now() + 30 * 24 * 60 * 60 * 1000
     );
 
-    await user.save();
+    await user.save(); // updated in db
 
+    // update the redis store
     const sessionId = await redis.get(`user-session:${user._id}`);
 
     if (sessionId) {
@@ -162,12 +163,12 @@ export const updatePlan = async (req, res) => {
   }
 };
 
-
-
+// deducts credits from user
 export const deductCredits = async (req, res) => {
   try {
     const { userId, agent } = req.body;
 
+    // cost of each service
     const COST = {
       chat: 1,
       search: 5,
@@ -186,8 +187,10 @@ export const deductCredits = async (req, res) => {
       });
     }
 
+    // credit used
     const requiredCredits = COST[agent] || 1;
 
+    // not enough credits to use the service
     if (user.credits < requiredCredits) {
       return res.status(400).json({
         success: false,
@@ -200,6 +203,7 @@ export const deductCredits = async (req, res) => {
 
     const sessionId = await redis.get(`user-session:${user._id}`);
 
+    // update the session in redis
     if (sessionId) {
       await redis.set(
         `session:${sessionId}`,
