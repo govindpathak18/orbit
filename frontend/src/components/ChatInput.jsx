@@ -12,24 +12,33 @@ import { useRef } from "react";
 export default function ChatInput({
   setBanner
 }) {
+  // state to hold the selected agent
   const [selectedAgent, setSelectedAgent] = useState("auto");
+
+  // state to hold the input value
   const [value, setValue] = useState("");
+
+  // state to hold the input value and whether the mic is listening
   const [isListening, setIsListening] = useState(false);
 
+  // ref to hold the speech recognition instance
   const recognitionRef = useRef(null);
+
   const dispatch = useDispatch();
+
+  // get the selected conversation and loading state from the redux store
   const { selectedConversation } = useSelector(state => state.conversation);
+
+  // get the loading state from the redux store
   const { isLoading } = useSelector(state => state.message);
+
+  // ref to hold the file input element
   const fileRef = useRef(null);
 
-  const [
+  // state to hold the selected file (PDF or image)
+  const [selectedFile, setSelectedFile] = useState(null);
 
-    selectedFile,
-
-    setSelectedFile
-
-  ] = useState(null);
-
+  // placeholders for the input field based on the selected agent
   const placeholders = {
 
     auto: "Ask orbit...",
@@ -48,6 +57,7 @@ export default function ChatInput({
 
   };
 
+  // list of agents with their id, icon, and label
   const agents = [
 
     {
@@ -94,85 +104,71 @@ export default function ChatInput({
 
   ];
 
+  // useEffect to initialize the speech recognition instance and set up event listeners
   useEffect(() => {
 
-    const SpeechRecognition =
-      window.SpeechRecognition ||
-      window.webkitSpeechRecognition;
+    // check if the browser supports speech recognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) return;
 
+    // create a new instance of speech recognition
     const recognition = new SpeechRecognition();
 
     recognition.lang = "en-IN";
-
     recognition.interimResults = true;
-
     recognition.continuous = true;
 
+    // event listener for when the speech recognition returns a result
     recognition.onresult = (event) => {
-
       let transcript = "";
 
-      for (
-
-        let i = event.resultIndex;
-
-        i < event.results.length;
-
-        i++
-
-      ) {
-
+      for (let i = event.resultIndex;i < event.results.length;i++) {
         transcript += event.results[i][0].transcript;
-
       }
 
       setValue(transcript);
 
     };
 
+    // event listener for when the speech recognition ends
     recognition.onend = () => {
-
       setIsListening(false);
-
     };
 
     recognitionRef.current = recognition;
 
   }, []);
 
+  // function to toggle the speech recognition on and off
   const toggleMic = () => {
 
+    // check if the speech recognition instance is available
     if (!recognitionRef.current) {
-
       alert("Speech Recognition not supported");
-
       return;
-
     }
 
     if (isListening) {
-
       recognitionRef.current.stop();
-
       setIsListening(false);
-
-    } else {
-
+    } 
+    else {
       recognitionRef.current.start();
-
       setIsListening(true);
-
     }
 
   };
 
 
+  // function to handle sending the prompt to the backend and updating the redux store with the response
   const handleSend = async () => {
+
     const prompt = value.trim();
     if (!prompt) return;
+
     dispatch(setIsLoading(true));
+
     try {
       let conversation = selectedConversation;
       if (!conversation) {
@@ -190,34 +186,21 @@ export default function ChatInput({
       dispatch(addMessage({ role: "user", content: prompt }));
       setValue("");
 
+      // create a new FormData object to send the prompt and selected file to the backend
       const formData = new FormData();
 
-      formData.append(
-        "conversationId",
-        conversation._id
-      );
-
-      formData.append(
-        "prompt",
-        prompt
-      );
-
-      formData.append(
-        "agent",
-        selectedAgent
-      );
-
+      // append the conversation ID, prompt, selected agent, and selected file (if any) to the FormData object
+      formData.append("conversationId",conversation._id);
+      formData.append("prompt",prompt);
+      formData.append("agent",selectedAgent);
       if (selectedFile) {
-
-        formData.append(
-          "file",
-          selectedFile
-        );
-
+        formData.append("file",selectedFile);
       }
 
+      // clear the selected file state after sending the prompt
       setSelectedFile(null)
 
+      // send the FormData object to the backend and wait for the response
       const data = await sendPrompt(formData);
       console.log(data)
       dispatch(
@@ -232,28 +215,17 @@ export default function ChatInput({
 
       if (data.artifacts) {
         dispatch(
-          setArtifacts(
-            data.artifacts
-          )
+          setArtifacts( data.artifacts )
         );
       }
+
     }
     catch (error) {
-
       setBanner({
-
         open: true,
-
-        title:
-          error.response?.data?.title ||
-          "Something went wrong",
-
-        message:
-          error.response?.data?.message ||
-          "Please try again."
-
+        title: error.response?.data?.title || "Something went wrong",
+        message: error.response?.data?.message || "Please try again."
       });
-
     }
     finally {
       dispatch(setIsLoading(false));
@@ -262,6 +234,7 @@ export default function ChatInput({
 
   return (
     <div className="w-full overflow-hidden px-3 md:px-5 py-4 border-t border-white/[0.06] bg-[#0d0f14]">
+
       <div className="flex flex-col gap-2 bg-white/[0.03] border border-white/[0.07] rounded-2xl px-4 pt-3.5 pb-3">
 
 
@@ -278,18 +251,7 @@ export default function ChatInput({
                 key={agent.id}
                 onClick={() => setSelectedAgent(agent.id)}
                 className={`
-            flex-shrink-0
-            
-            inline-flex
-            items-center
-            gap-1.5
-            px-3
-            py-2
-            rounded-full
-            text-xs
-            font-medium
-            border
-            transition-all
+            flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium border transition-all
 
             ${isActive
                     ? "bg-gradient-to-r from-indigo-500 to-violet-600 text-white border-transparent shadow-[0_1px_8px_rgba(99,102,241,.35)]"
@@ -318,122 +280,62 @@ export default function ChatInput({
 
         </div>
 
-        {
-
-          selectedFile && (
-
+        {/* Show selected file */}
+        { selectedFile && (
             <div className="my-3">
-
               <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
-
-                {
-
+                { 
                   selectedFile.type === "application/pdf"
-
                     ?
-
-                    <FileText
-
-                      size={16}
-
-                      className="text-red-400"
-
-                    />
-
+                    <FileText size={16} className="text-red-400" />
                     :
-
-
-
-                    selectedFile?.type.startsWith("image/")
-
-                    &&
-
+                    selectedFile?.type.startsWith("image/") &&
                     <img
-
                       src={URL.createObjectURL(selectedFile)}
-
                       className="h-10 w-10 rounded-xl object-cover mt-3"
-
                     />
-
-
-
                 }
 
+                {/* show file name and size */}
                 <div>
-
                   <p className="text-xs text-white">
-
-                    {
-
-                      selectedFile.name
-
-                    }
-
+                    { selectedFile.name }
                   </p>
-
                   <p className="text-[10px] text-slate-500">
-
-                    {
-
-                      Math.ceil(
-
-                        selectedFile.size /
-
-                        1024
-
-                      )
-
-                    }
-
+                    { Math.ceil( selectedFile.size / 1024 ) }
                     KB
-
                   </p>
-
                 </div>
 
+                {/* Remove file button */}
                 <button
-
                   onClick={() => {
-
                     setSelectedFile(null);
-
                     fileRef.current.value = "";
-
                   }}
-
                   className="ml-2"
-
-                >
-
+                  >
                   <X
-
                     size={14}
-
                     className="text-slate-500 hover:text-white"
-
                   />
-
                 </button>
 
               </div>
-
             </div>
-
           )
         }
 
-
         {/* Textarea */}
-        <textarea
-          value={value}
+        <textarea value={value}
           onChange={e => setValue(e.target.value)}
           placeholder={
             placeholders[selectedAgent]
           }
           rows={3}
           disabled={isLoading}
-          className="w-full bg-transparent outline-none resize-none text-[14px] text-slate-200 placeholder:text-slate-600 leading-relaxed [scrollbar-width:none] [&::-webkit-scrollbar]:hidden disabled:opacity-50"
+          className="w-full bg-transparent outline-none resize-none text-[14px] text-slate-200
+           placeholder:text-slate-600 leading-relaxed [scrollbar-width:none] [&::-webkit-scrollbar]:hidden disabled:opacity-50"
         />
 
         {/* Bottom row */}
@@ -442,87 +344,32 @@ export default function ChatInput({
           {/* Left — attach + mic */}
           <div className="flex items-center gap-1">
             <input
-
               ref={fileRef}
-
               type="file"
-
               hidden
-
               accept=".pdf,image/*"
-
               onChange={(e) => {
-
-                const file =
-                  e.target.files[0];
-
+                const file = e.target.files[0];
                 if (file) {
-
                   setSelectedFile(file);
-
                 }
-
               }}
 
             />
-            <button className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-600 hover:text-slate-400 hover:bg-white/[0.05] border border-transparent hover:border-white/[0.06] transition-all duration-150 bg-transparent cursor-pointer"
-              onClick={() =>
-                fileRef.current.click()
-              }
+            <button className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-600 hover:text-slate-400
+             hover:bg-white/[0.05] border border-transparent hover:border-white/[0.06] transition-all duration-150 bg-transparent cursor-pointer"
+              onClick={() => fileRef.current.click()}
             >
-              <Paperclip size={14} />
+            <Paperclip size={14} />
             </button>
             <button
 
               onClick={toggleMic}
 
-              className={`
+              className={` flex  items-center  justify-center  w-8  h-8  rounded-lg  transition-all  cursor-pointer 
+                ${isListening ? "bg-red-500 text-white" : "text-slate-600 hover:bg-white/[0.05]"} `}>
 
-flex
-
-items-center
-
-justify-center
-
-w-8
-
-h-8
-
-rounded-lg
-
-transition-all
-
-cursor-pointer
-
-${isListening
-
-                  ?
-
-                  "bg-red-500 text-white"
-
-                  :
-
-                  "text-slate-600 hover:bg-white/[0.05]"
-
-                }
-
-`}
-
-            >
-
-              {
-
-                isListening
-
-                  ?
-
-                  <MicOff size={14} />
-
-                  :
-
-                  <Mic size={14} />
-
-              }
+              { isListening ? <MicOff size={14} /> : <Mic size={14} /> }
 
             </button>
           </div>
@@ -546,8 +393,9 @@ ${isListening
       </div>
 
       <p className="text-center text-[10.5px] text-slate-700 mt-2.5">
-        rbit can make mistakes. Verify important info.
+        orbit can make mistakes. Verify important info.
       </p>
+
     </div>
   );
 }

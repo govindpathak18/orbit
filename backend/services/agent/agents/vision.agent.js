@@ -50,7 +50,6 @@ Rules:
           }
         ]
       })
-
     ];
 
     const response = await llm.invoke(messages);
