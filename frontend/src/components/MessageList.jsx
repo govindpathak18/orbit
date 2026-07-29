@@ -5,23 +5,24 @@ import { getMessages } from "../features/message.api";
 import { setArtifacts, setMessages } from "../redux/message.slice";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+
+// ______________________LOADING ANIMATION______________________________________
+
+// NeuralPulse component for the pulsing animation -> loading animation
 function NeuralPulse() {
   return (
     <div className="relative w-9 h-9 flex items-center justify-center shrink-0">
       {[0, 0.45, 0.9].map((delay, i) => (
+
         <motion.span
           key={i}
           className="absolute inset-0 rounded-full border border-cyan-400/30"
           initial={{ scale: 0.3, opacity: 0.55 }}
           animate={{ scale: 1.7, opacity: 0 }}
-          transition={{
-            duration: 1.8,
-            repeat: Infinity,
-            delay,
-            ease: "easeOut",
-          }}
+          transition={{ duration: 1.8, repeat: Infinity, delay, ease: "easeOut", }}
         />
       ))}
+
       <motion.span
         className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-cyan-300 to-violet-400"
         style={{ boxShadow: "0 0 14px rgba(125,211,252,0.55)" }}
@@ -32,8 +33,10 @@ function NeuralPulse() {
   );
 }
 
+// texts while loading
 const THINKING_LABELS = ["Thinking", "Analyzing", "Reasoning", "Generating"];
 
+// GeneratingIndicator component for the loading indicator with animated text
 function GeneratingIndicator() {
   const [labelIndex, setLabelIndex] = useState(0);
 
@@ -64,12 +67,7 @@ function GeneratingIndicator() {
                 key={i}
                 className="text-[13px] font-medium tracking-wide text-slate-400"
                 animate={{ opacity: [0.3, 1, 0.3] }}
-                transition={{
-                  duration: 1.4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: i * 0.07,
-                }}
+                transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut", delay: i * 0.07, }}
               >
                 {ch}
               </motion.span>
@@ -81,51 +79,47 @@ function GeneratingIndicator() {
   );
 }
 
+// ______________________________________________________________________________
+
+
 export default function MessageList() {
 
+  // for auto scroll
   const bottomRef = useRef(null);
+
   const { messages, isLoading } = useSelector(state => state.message);
+
   const { selectedConversation } = useSelector(state => state.conversation);
+
   const dispatch = useDispatch();
-useEffect(() => {
 
-  requestAnimationFrame(() => {
-
-    bottomRef.current?.scrollIntoView({
-
-      behavior: "smooth",
-
-      block: "end"
-
-    });
-
-  });
-
-}, [messages.length, isLoading]);
+  // auto scroll to bottom when messages change or loading state changes
   useEffect(() => {
+    requestAnimationFrame(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    });
+  }, [messages.length, isLoading]);
+
+  // fetch messages when selected conversation changes
+  useEffect(() => {
+
     if (selectedConversation?.title === "New Chat") return;
+
     const get = async () => {
       const data = await getMessages(selectedConversation?._id);
       dispatch(setMessages(data));
-      const latestArtifactMessage =
-  [...data]
-    .reverse()
-    .find(
-      msg =>
-        msg.artifacts &&
-        msg.artifacts.length > 0
-    );
+      const latestArtifactMessage = [...data]
+          .reverse()
+          .find( msg => msg.artifacts && msg.artifacts.length > 0 );
 
-if (latestArtifactMessage) {
+      if (latestArtifactMessage) {
+        dispatch(
+          setArtifacts( latestArtifactMessage.artifacts )
+        );
+      }
 
-  dispatch(
-    setArtifacts(
-      latestArtifactMessage.artifacts
-    )
-  );
-
-}
     };
+    
     get();
   }, [selectedConversation?._id]);
 
@@ -158,7 +152,7 @@ if (latestArtifactMessage) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.22, ease: "easeOut" }}
             >
-              <MessageBubble role={msg.role} content={msg.content} images={msg?.images || []}/>
+              <MessageBubble role={msg.role} content={msg.content} images={msg?.images || []} />
             </motion.div>
           ))}
 
@@ -171,10 +165,10 @@ if (latestArtifactMessage) {
               <GeneratingIndicator />
             </motion.div>
           )}
-        
+
         </>
       )}
-        <div ref={bottomRef} />
+      <div ref={bottomRef} />
     </div>
   );
 }
