@@ -277,6 +277,7 @@ export default function Sidebar() {
       `}
       >
         {renderSidebarContent()}
+
       </div>
 
       <BillingDrawer open={showBilling} onClose={() => setShowBilling(false)} />
