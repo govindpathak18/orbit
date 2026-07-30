@@ -2,7 +2,7 @@ import MessageBubble from "./MessageBubble";
 
 import { useDispatch, useSelector } from "react-redux";
 import { getMessages } from "../features/message.api";
-import { setArtifacts, setMessages } from "../redux/message.slice";
+import { setArtifacts, setMessages } from "../redux/messageSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
@@ -102,24 +102,26 @@ export default function MessageList() {
 
   // fetch messages when selected conversation changes
   useEffect(() => {
-
-    if (selectedConversation?.title === "New Chat") return;
+    if (!selectedConversation || selectedConversation.title === "New Chat") return;
 
     const get = async () => {
-      const data = await getMessages(selectedConversation?._id);
-      dispatch(setMessages(data));
-      const latestArtifactMessage = [...data]
+      try {
+        const data = await getMessages(selectedConversation._id);
+        dispatch(setMessages(data));
+        const latestArtifactMessage = [...data]
           .reverse()
-          .find( msg => msg.artifacts && msg.artifacts.length > 0 );
+          .find(msg => msg.artifacts && msg.artifacts.length > 0);
 
-      if (latestArtifactMessage) {
-        dispatch(
-          setArtifacts( latestArtifactMessage.artifacts )
-        );
+        if (latestArtifactMessage) {
+          dispatch(
+            setArtifacts(latestArtifactMessage.artifacts)
+          );
+        }
+      } catch (error) {
+        console.error("Failed to load messages:", error);
+        dispatch(setMessages([]));
       }
-
     };
-    
     get();
   }, [selectedConversation?._id]);
 

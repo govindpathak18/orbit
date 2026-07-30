@@ -11,9 +11,9 @@ import { auth, googleProvider } from "../../firebase";
 function Home() {
 
     const { userData } = useSelector(state => state.user);
-     // Accessing the user data from the Redux store
+    // Accessing the user data from the Redux store
     const dispatch = useDispatch()
-    
+
     const login = async (token) => {
         try {
             const { data } = await api.post(`/api/auth/login`, { token })
@@ -36,7 +36,7 @@ function Home() {
             <ChatArea />
             <ArtifactPanel />
 
-            //unauthenticated user, show login modal
+            {/* unauthenticated user, show login modal */}
             {!userData && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                     <div className="w-85 bg-[#13151c] border border-white/8 rounded-2xl p-7 flex flex-col gap-5">

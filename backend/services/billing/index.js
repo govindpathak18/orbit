@@ -8,23 +8,41 @@ import router from "./routes/billing.routes.js";
 
 dotenv.config()
 
-const port=process.env.PORT
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:5173',
+    'http://localhost:5174',
+].filter(Boolean);
+
+const port = process.env.PORT
 const app = express();
+
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+            callback(new Error('Not allowed by CORS'));
+        },
+        credentials: true,
+    })
+);
 
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("dev"));
 
-app.use("/",router);
+app.use("/", router);
 
-app.get("/",(req,res)=>{
+app.get("/", (req, res) => {
     res.json({
-        success:true,
-        message:"Billing Service Running"
+        success: true,
+        message: "Billing Service Running"
     });
 });
 
 app.listen(port, () => {
     connectDB()
-    console.log(`billing service running on ${port}`);
+    console.log(`🚀 Billing service is running on port ${port}`);
 });

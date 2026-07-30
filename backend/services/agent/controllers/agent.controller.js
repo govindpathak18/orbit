@@ -1,5 +1,5 @@
 import redis from "../../../shared/redis/redis.js";
-import { graph } from "../graph/supervisor.graph.js";
+import { graph } from "../grpah/supervisor.graph.js";
 import { addMessage } from "../utils/memory.js";
 import axios from "axios"
 
@@ -68,6 +68,7 @@ export const chat = async (req, res, next) => {
     });
 
   } catch (error) {
+    // pass the error to the global error handler
     next(error)
   }
 

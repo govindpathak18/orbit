@@ -2,15 +2,20 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 
 import { s3 } from "./s3.js";
 
-export const uploadToS3 =async (buffer,fileName,contentType) => {
+const bucketName = process.env.AWS_BUCKET_NAME;
+if (!bucketName || bucketName === "add AWS bucket name") {
+  throw new Error(
+    "AWS_BUCKET_NAME is not configured properly. Please set a valid S3 bucket name in the environment."
+  );
+}
 
+export const uploadToS3 = async (buffer, fileName, contentType) => {
   await s3.send(
-    // send to s3
     new PutObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME,
+      Bucket: bucketName,
       Key: fileName,
       Body: buffer,
-      ContentType: contentType
+      ContentType: contentType,
     })
   );
 

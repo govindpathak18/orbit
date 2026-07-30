@@ -10,20 +10,60 @@ import { deductCredits } from "../utils/deductCredits.js";
 
 export const chatAgent = async (state) => {
 
-  await checkAgentLimit(state.userId,"chat");
+  await checkAgentLimit(state.userId, "chat");
 
-  await deductCredits(state.userId,"chat");
+  await deductCredits(state.userId, "chat");
 
   const llm = getModel("chat"); // groq
 
   const history = await getMemory(state.conversationId);
 
-  //from search agent
+  const normalizeSearchResults = (results) => {
+    if (!results) return "";
+
+    const normalizeItem = (item, index) => {
+      const lines = [`Result ${index + 1}:`];
+      if (item.title) lines.push(`Title: ${item.title}`);
+      if (item.link) lines.push(`Link: ${item.link}`);
+      if (item.url) lines.push(`URL: ${item.url}`);
+      if (item.snippet) lines.push(`Snippet: ${item.snippet}`);
+      if (item.description) lines.push(`Description: ${item.description}`);
+      if (item.source) lines.push(`Source: ${item.source}`);
+      return lines.join("\n");
+    };
+
+    if (Array.isArray(results)) {
+      return results.map(normalizeItem).join("\n\n");
+    }
+
+    if (typeof results === "object") {
+      const nestedArray = results.results || results.value || results.items || results.webPages?.value || results.organic || results.organic_results;
+      if (Array.isArray(nestedArray)) {
+        return nestedArray.map(normalizeItem).join("\n\n");
+      }
+
+      return Object.entries(results)
+        .map(([key, value]) => {
+          if (Array.isArray(value)) {
+            return `${key}:\n${value.map(normalizeItem).join("\n\n")}`;
+          }
+          return `${key}: ${typeof value === "object" ? JSON.stringify(value) : value}`;
+        })
+        .join("\n");
+    }
+
+    return String(results);
+  };
+
   const searchContext = state.searchResults
     ? `
     Web Search Results:
-    ${state.searchResults}
-    Answer the user using only the above search results.`
+    ${normalizeSearchResults(state.searchResults)}
+
+    Use the above search results to answer the user.
+    If the results include URLs or links, include them directly in the answer using markdown link formatting.
+    Do not say you cannot provide links.
+    `
     : ""
 
   // messages is an array of system prompt+history+user prompt+aiMessage
@@ -31,7 +71,7 @@ export const chatAgent = async (state) => {
   const messages = [
 
     // system prompt,
-    new SystemMessage(  `
+    new SystemMessage(`
     You are orbit, an intelligent AI assistant.
 
     ${searchContext} 
@@ -66,16 +106,16 @@ export const chatAgent = async (state) => {
   history.forEach((msg) => {
 
     if (msg.role === "user") {
-      messages.push( new HumanMessage( msg.content ) );
+      messages.push(new HumanMessage(msg.content));
     }
 
-    if ( msg.role === "assistant" ) {
-      messages.push( new AIMessage( msg.content ) );
+    if (msg.role === "assistant") {
+      messages.push(new AIMessage(msg.content));
     }
   });
 
   // prompt
-  messages.push( new HumanMessage( state.prompt ) );
+  messages.push(new HumanMessage(state.prompt));
 
   const response = await llm.invoke(messages);
 

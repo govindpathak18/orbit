@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Send, Paperclip, Square, Zap, MessageSquare, Code2, Presentation, Image as ImageIcon, Globe, FileText, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { addMessage, setArtifacts, setIsLoading } from "../redux/message.slice";
+import { addMessage, setArtifacts, setIsLoading } from "../redux/messageSlice";
 import { sendPrompt } from "../features/agent.api";
 import { Mic, MicOff } from "lucide-react";
 import { useEffect } from "react";
 import { createConversation, updateConversations } from "../features/conversation.api";
-import { addConversation, setConvTitle, setSelectedConversation } from "../redux/conversation.slice";
+import { addConversation, setConvTitle, setSelectedConversation } from "../redux/conversationSlice";
 import { useRef } from "react";
 
 export default function ChatInput({
@@ -123,7 +123,7 @@ export default function ChatInput({
     recognition.onresult = (event) => {
       let transcript = "";
 
-      for (let i = event.resultIndex;i < event.results.length;i++) {
+      for (let i = event.resultIndex; i < event.results.length; i++) {
         transcript += event.results[i][0].transcript;
       }
 
@@ -152,7 +152,7 @@ export default function ChatInput({
     if (isListening) {
       recognitionRef.current.stop();
       setIsListening(false);
-    } 
+    }
     else {
       recognitionRef.current.start();
       setIsListening(true);
@@ -160,6 +160,12 @@ export default function ChatInput({
 
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleSend();
+    }
+  };
 
   // function to handle sending the prompt to the backend and updating the redux store with the response
   const handleSend = async () => {
@@ -190,11 +196,11 @@ export default function ChatInput({
       const formData = new FormData();
 
       // append the conversation ID, prompt, selected agent, and selected file (if any) to the FormData object
-      formData.append("conversationId",conversation._id);
-      formData.append("prompt",prompt);
-      formData.append("agent",selectedAgent);
+      formData.append("conversationId", conversation._id);
+      formData.append("prompt", prompt);
+      formData.append("agent", selectedAgent);
       if (selectedFile) {
-        formData.append("file",selectedFile);
+        formData.append("file", selectedFile);
       }
 
       // clear the selected file state after sending the prompt
@@ -215,7 +221,7 @@ export default function ChatInput({
 
       if (data.artifacts) {
         dispatch(
-          setArtifacts( data.artifacts )
+          setArtifacts(data.artifacts)
         );
       }
 
@@ -281,61 +287,60 @@ export default function ChatInput({
         </div>
 
         {/* Show selected file */}
-        { selectedFile && (
-            <div className="my-3">
-              <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
-                { 
-                  selectedFile.type === "application/pdf"
-                    ?
-                    <FileText size={16} className="text-red-400" />
-                    :
-                    selectedFile?.type.startsWith("image/") &&
-                    <img
-                      src={URL.createObjectURL(selectedFile)}
-                      className="h-10 w-10 rounded-xl object-cover mt-3"
-                    />
-                }
-
-                {/* show file name and size */}
-                <div>
-                  <p className="text-xs text-white">
-                    { selectedFile.name }
-                  </p>
-                  <p className="text-[10px] text-slate-500">
-                    { Math.ceil( selectedFile.size / 1024 ) }
-                    KB
-                  </p>
-                </div>
-
-                {/* Remove file button */}
-                <button
-                  onClick={() => {
-                    setSelectedFile(null);
-                    fileRef.current.value = "";
-                  }}
-                  className="ml-2"
-                  >
-                  <X
-                    size={14}
-                    className="text-slate-500 hover:text-white"
+        {selectedFile && (
+          <div className="my-3">
+            <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2">
+              {
+                selectedFile.type === "application/pdf"
+                  ?
+                  <FileText size={16} className="text-red-400" />
+                  :
+                  selectedFile?.type.startsWith("image/") &&
+                  <img
+                    src={URL.createObjectURL(selectedFile)}
+                    className="h-10 w-10 rounded-xl object-cover mt-3"
                   />
-                </button>
+              }
 
+              {/* show file name and size */}
+              <div>
+                <p className="text-xs text-white">
+                  {selectedFile.name}
+                </p>
+                <p className="text-[10px] text-slate-500">
+                  {Math.ceil(selectedFile.size / 1024)}
+                  KB
+                </p>
               </div>
+
+              {/* Remove file button */}
+              <button
+                onClick={() => {
+                  setSelectedFile(null);
+                  fileRef.current.value = "";
+                }}
+                className="ml-2"
+              >
+                <X
+                  size={14}
+                  className="text-slate-500 hover:text-white"
+                />
+              </button>
+
             </div>
-          )
+          </div>
+        )
         }
 
         {/* Textarea */}
-        <textarea value={value}
-          onChange={e => setValue(e.target.value)}
-          placeholder={
-            placeholders[selectedAgent]
-          }
+        <textarea
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholders[selectedAgent]}
           rows={3}
           disabled={isLoading}
-          className="w-full bg-transparent outline-none resize-none text-[14px] text-slate-200
-           placeholder:text-slate-600 leading-relaxed [scrollbar-width:none] [&::-webkit-scrollbar]:hidden disabled:opacity-50"
+          className="w-full bg-transparent outline-none resize-none text-[14px] text-slate-200 placeholder:text-slate-600 leading-relaxed [scrollbar-width:none] [&::-webkit-scrollbar]:hidden disabled:opacity-50"
         />
 
         {/* Bottom row */}
@@ -360,7 +365,7 @@ export default function ChatInput({
              hover:bg-white/[0.05] border border-transparent hover:border-white/[0.06] transition-all duration-150 bg-transparent cursor-pointer"
               onClick={() => fileRef.current.click()}
             >
-            <Paperclip size={14} />
+              <Paperclip size={14} />
             </button>
             <button
 
@@ -369,7 +374,7 @@ export default function ChatInput({
               className={` flex  items-center  justify-center  w-8  h-8  rounded-lg  transition-all  cursor-pointer 
                 ${isListening ? "bg-red-500 text-white" : "text-slate-600 hover:bg-white/[0.05]"} `}>
 
-              { isListening ? <MicOff size={14} /> : <Mic size={14} /> }
+              {isListening ? <MicOff size={14} /> : <Mic size={14} />}
 
             </button>
           </div>

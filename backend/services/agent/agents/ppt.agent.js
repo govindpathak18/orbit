@@ -238,29 +238,30 @@ function parseResponse(content) {
     slides: [],
   };
 
-  const titleMatch = content.match(/^TITLE:\s*(.+)/m);
+  const normalized = String(content || "").trim();
+
+  const titleMatch = normalized.match(/^TITLE:\s*(.+)/mi);
   result.title = titleMatch?.[1]?.trim() || "Presentation";
 
-  const subtitleMatch = content.match(/^SUBTITLE:\s*(.+)/m);
+  const subtitleMatch = normalized.match(/^SUBTITLE:\s*(.+)/mi);
   result.subtitle = subtitleMatch?.[1]?.trim() || "";
 
-  const rawSlides = content.split(/^SLIDE:/m).slice(1);
+  const rawSlides = normalized.split(/^SLIDE:/gmi).slice(1);
 
   rawSlides.forEach((raw) => {
-    const lines = raw.split("\n").map(l => l.trim()).filter(Boolean);
-    const titleLine = lines.find(l => l.startsWith("Title:"));
-    const typeLine = lines.find(l => l.startsWith("Type:"));
+    const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
+    const titleLine = lines.find((l) => /^Title:/i.test(l));
+    const typeLine = lines.find((l) => /^Type:/i.test(l));
 
-    const title = titleLine?.replace("Title:", "").trim() || "Slide";
-    const type = typeLine?.replace("Type:", "").trim().toLowerCase() || "bullets";
+    const title = titleLine?.replace(/^Title:/i, "").trim() || "Slide";
+    const type = typeLine?.replace(/^Type:/i, "").trim().toLowerCase() || "bullets";
 
     const items = lines
-      .filter(l => l.startsWith("- "))
-      .map(l => l.replace(/^-\s*/, "").trim());
+      .filter((l) => /^?-?\s*/.test(l) || l.startsWith("-"))
+      .map((l) => l.replace(/^-?\s*/, "").trim());
 
-    // For STATS slides: "Label | Value"
-    const stats = items.map(i => {
-      const parts = i.split("|").map(p => p.trim());
+    const stats = items.map((i) => {
+      const parts = i.split("|").map((p) => p.trim());
       return parts.length === 2
         ? { label: parts[0], value: parts[1] }
         : { label: i, value: "" };
@@ -268,6 +269,16 @@ function parseResponse(content) {
 
     result.slides.push({ title, type, items, stats });
   });
+
+  if (!result.slides.length) {
+    const fallbackItems = normalized
+      .split(/\n{2,}/)
+      .map((block) => block.trim())
+      .filter(Boolean)
+      .slice(0, 5);
+
+    result.slides.push({ title: "Overview", type: "bullets", items: fallbackItems, stats: [] });
+  }
 
   return result;
 }
@@ -382,8 +393,11 @@ Title: Conclusion
 `
     };
   } catch (error) {
-    console.log("PPT Agent Error:", error);
-    return { ...state, response: "Failed to generate presentation." };
+    console.error("PPT Agent Error:", error);
+    return {
+      ...state,
+      response: `❌ Failed to generate presentation. Error: ${error?.message || "Unknown error"}`,
+    };
   }
 };
 

@@ -26,7 +26,32 @@ export const login = async (req, res) => {
         name: decoded.name,
         avatar: decoded.picture,
         provider: decoded.firebase?.sign_in_provider,
+        plan: "Free",
+        credits: 100,
+        totalCredits: 100,
+        planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       });
+    } else {
+      let shouldSave = false;
+      if (!user.plan) {
+        user.plan = "Free";
+        shouldSave = true;
+      }
+      if (typeof user.credits !== "number") {
+        user.credits = 100;
+        shouldSave = true;
+      }
+      if (typeof user.totalCredits !== "number") {
+        user.totalCredits = 100;
+        shouldSave = true;
+      }
+      if (!user.planExpiresAt) {
+        user.planExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        shouldSave = true;
+      }
+      if (shouldSave) {
+        await user.save();
+      }
     }
 
 
@@ -41,7 +66,7 @@ export const login = async (req, res) => {
       60 * 60 * 24 * 7
     );
 
-  
+
     await redis.set(
       `session:${sessionId}`,
       JSON.stringify({

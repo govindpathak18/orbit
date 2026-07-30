@@ -11,12 +11,25 @@ import { getCurrentUser } from "./controllers/user.controller.js";
 import cookieParser from "cookie-parser"
 dotenv.config();
 const app = express();
-const port=process.env.PORT || 5000
+const port = process.env.PORT || 5000
 
-app.use(cors({
-    origin:"http://localhost:5173",
-    credentials:true
-}));
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://localhost:5174",
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
 
 app.use(
   "/uploads",
@@ -33,15 +46,15 @@ app.use(express.json()); // parse json
 
 
 // services (auth, chat, agent, billing) are proxied through the gateway
-app.use("/api/auth",proxy(process.env.AUTH_SERVICE))
-app.use("/api/me",protect,getCurrentUser)
+app.use("/api/auth", proxy(process.env.AUTH_SERVICE))
+app.use("/api/me", protect, getCurrentUser)
 
 
 // only authenticated users can access other services
 // user details are send to those services using headers(proxyWithUser middleware)
-app.use("/api/chat",protect,proxyWithUser(process.env.CHAT_SERVICE))
-app.use("/api/agent",protect,proxyWithUser(process.env.AGENT_SERVICE))
-app.use("/api/billing",protect,proxyWithUser(process.env.BILLING_SERVICE))
+app.use("/api/chat", protect, proxyWithUser(process.env.CHAT_SERVICE))
+app.use("/api/agent", protect, proxyWithUser(process.env.AGENT_SERVICE))
+app.use("/api/billing", protect, proxyWithUser(process.env.BILLING_SERVICE))
 
 
 app.get("/", (req, res) => {
@@ -53,7 +66,5 @@ app.get("/", (req, res) => {
 
 
 app.listen(port, () => {
-  console.log(
-    `Gateway running on ${port}`
-  );
+  console.log(`🚀 Gateway running on ${port}`);
 });

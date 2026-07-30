@@ -8,7 +8,10 @@ import api from "../utils/axios";
 
 export default function BillingDrawer({ open, onClose }) {
 
-  const { userData } = useSelector(state => state.user)
+  const { userData } = useSelector(state => state.user);
+  const credits = typeof userData?.credits === "number" ? userData.credits : null;
+  const totalCredits = typeof userData?.totalCredits === "number" ? userData.totalCredits : null;
+  const progressWidth = totalCredits ? `${Math.min(100, Math.max(0, (credits ?? 0) / totalCredits * 100))}%` : "0%";
 
   // plan => starter or pro
   const handleUpgrade = async (plan) => {
@@ -41,7 +44,7 @@ export default function BillingDrawer({ open, onClose }) {
         theme: { color: "#4F46E5" }
       };
 
-      
+
       const razorpay = new window.Razorpay(options);
       razorpay.open(); // opens razorPay window
 
@@ -121,22 +124,23 @@ export default function BillingDrawer({ open, onClose }) {
                 <div className="mt-5">
                   <div className="flex justify-between text-xs text-slate-400 mb-2">
                     <span>Credits</span>
-                    <span>{userData?.credits || 0}/{userData?.totalCredits || 0}</span>
+                    <span>
+                      {credits === null || totalCredits === null
+                        ? "Unavailable"
+                        : `${credits}/${totalCredits}`}
+                    </span>
                   </div>
                   <div className="h-2 rounded-full bg-white/10 overflow-hidden">
                     <div
                       className="h-full bg-indigo-500 transition-all duration-500"
-                      style={{
-                        width: `${(
-                          (userData?.credits || 0) /
-                          (userData?.totalCredits || 1)
-                        ) * 100
-                          }%`
-                      }}
+                      style={{ width: progressWidth }}
                     />
-
                   </div>
-
+                  {credits === null || totalCredits === null ? (
+                    <p className="mt-2 text-[11px] text-amber-300">
+                      Credit data is unavailable. Please refresh or login again.
+                    </p>
+                  ) : null}
                 </div>
 
               </div>
@@ -191,8 +195,8 @@ export default function BillingDrawer({ open, onClose }) {
                   1000 Credits
                 </p>
 
-                <button className="mt-4 w-full rounded-lg bg-indigo-600 hover:bg-indigo-700 py-2 text-white" 
-                onClick={() => handleUpgrade("pro")}>
+                <button className="mt-4 w-full rounded-lg bg-indigo-600 hover:bg-indigo-700 py-2 text-white"
+                  onClick={() => handleUpgrade("pro")}>
                   Upgrade
                 </button>
 

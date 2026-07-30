@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
     firebaseUid: {
         type: String,
         required: true,
-        unique: true 
+        unique: true
     },
     name: {
         type: String,
@@ -13,12 +13,30 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
     avatar: {
         type: String,
-    }
-},{timestamps: true});
+    },
+    provider: {
+        type: String,
+    },
+    plan: {
+        type: String,
+        default: "Free",
+    },
+    credits: {
+        type: Number,
+        default: 100,
+    },
+    totalCredits: {
+        type: Number,
+        default: 100,
+    },
+    planExpiresAt: {
+        type: Date,
+    },
+}, { timestamps: true });
 
 const User = mongoose.model("User", userSchema);
 

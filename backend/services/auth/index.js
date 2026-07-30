@@ -8,8 +8,24 @@ dotenv.config();
 
 const PORT = process.env.PORT || 8001;
 
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  'http://localhost:5174',
+].filter(Boolean);
+
 const app = express();
-app.use(cors({ origin: process.env.FRONTEND_URL }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -18,9 +34,9 @@ app.get('/', (req, res) => {
   res.status(200).json({ message: 'Hello from Auth Service' });
 });
 
-app.use("/",router);
+app.use("/", router);
 
 app.listen(PORT, () => {
-  console.log(`auth service is running on port ${PORT}`);
+  console.log(`🚀 Auth service is running on port ${PORT}`);
   connectDB();
 });

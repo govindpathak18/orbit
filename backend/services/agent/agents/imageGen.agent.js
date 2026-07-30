@@ -13,9 +13,9 @@ export const imageAgent = async (state) => {
 
   try {
 
-    await checkAgentLimit( state.userId, "image");
+    await checkAgentLimit(state.userId, "image");
 
-    await deductCredits(state.userId,"image");
+    await deductCredits(state.userId, "image");
 
     const llm = getModel("image");
 
@@ -48,19 +48,24 @@ ${state.prompt}
 
 `);
 
-    const enhancedPrompt = promptResponse.content.trim();
+    const enhancedPrompt = String(promptResponse.content || state.prompt).trim();
+    if (!enhancedPrompt) {
+      throw new Error("Image prompt generation returned empty content.");
+    }
 
     // image generation url (pollination api)
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent( enhancedPrompt )}`;
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}`;
 
-    const imageResponse =
-      await axios.get(
-        imageUrl,
-        { responseType: "arraybuffer" }
-      );
+    const imageResponse = await axios.get(imageUrl, {
+      responseType: "arraybuffer",
+      validateStatus: (status) => status >= 200 && status < 300,
+    });
 
-    // get the buffer of the image
-    const imageBuffer = Buffer.from( imageResponse.data );
+    if (!imageResponse?.data || imageResponse.data.byteLength === 0) {
+      throw new Error("Image API returned an empty response.");
+    }
+
+    const imageBuffer = Buffer.from(imageResponse.data);
 
     const fileName = `image-${Date.now()}.png`;
 
@@ -73,9 +78,9 @@ ${state.prompt}
 
     // get the image url from s3
     const downloadUrl = await getDownloadUrl(
-        fileName,
-        24 * 60 * 60
-      );
+      fileName,
+      24 * 60 * 60
+    );
 
     return {
       ...state,
@@ -89,16 +94,12 @@ ${state.prompt}
 ⏳ Link expires in 10 minutes.
 `
     };
-    
+
   } catch (error) {
-
-    console.log( "Image Agent Error:",error);
-
+    console.error("Image Agent Error:", error);
     return {
       ...state,
-      response:"❌ Failed to generate image."
+      response: `❌ Failed to generate image. Error: ${error?.message || "Unknown error"}`,
     };
-
   }
-
 };

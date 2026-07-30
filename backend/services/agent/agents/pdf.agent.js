@@ -10,7 +10,7 @@ import { deductCredits } from "../utils/deductCredits.js";
 export const pdfAgent = async (state) => {
 
   try {
-    
+
     await checkAgentLimit(state.userId, "pdf");
 
     await deductCredits(state.userId, "pdf");
@@ -37,7 +37,7 @@ Rules:
 - Return plain text only.
 
 `);
- // ai returns a json response, we need to convert it to pdf using
+    // ai returns a json response, we need to convert it to pdf using
 
     const rawContent = aiResponse?.content?.trim() || state.prompt;
 
@@ -46,31 +46,31 @@ Rules:
       .filter(line => line.trim());
 
     const generatedTitle = lines?.[0]?.length < 120
-        ? lines[0]
-        : state.prompt;
+      ? lines[0]
+      : state.prompt;
 
     const cleanContent = rawContent
-        .replace(/\*\*/g, "")
-        .replace(/```/g, "")
-        .replace(/###/g, "")
-        .replace(/##/g, "")
-        .replace(/#/g, "")
-        .trim();
+      .replace(/\*\*/g, "")
+      .replace(/```/g, "")
+      .replace(/###/g, "")
+      .replace(/##/g, "")
+      .replace(/#/g, "")
+      .trim();
 
     const fileName = `pdf-${Date.now()}.pdf`;
 
     // create a new PDF document
     const doc = new PDFDocument({
-        size: "A4",
-        margin: 50,
-        bufferPages: true,
-        info: {
-          Title: generatedTitle,
-          Author: "orbit",
-          Subject: state.prompt,
-          Creator: "orbit PDF Agent"
-        }
-      });
+      size: "A4",
+      margin: 50,
+      bufferPages: true,
+      info: {
+        Title: generatedTitle,
+        Author: "orbit",
+        Subject: state.prompt,
+        Creator: "orbit PDF Agent"
+      }
+    });
 
     const chunks = [];
 
@@ -135,13 +135,13 @@ Rules:
 
     await new Promise(
       (resolve, reject) => {
-        doc.on("end",resolve);
-        doc.on("error",reject);
+        doc.on("end", resolve);
+        doc.on("error", reject);
       }
     );
 
-    // concatonate chunks
-    const pdfBuffer =nBuffer.concat(chunks);
+    // concatenate chunks
+    const pdfBuffer = Buffer.concat(chunks);
 
     // upload the pdf to s3
     await uploadToS3(

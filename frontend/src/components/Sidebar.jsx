@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { Plus, MessageSquare, LogOut, User, PenSquare, Menu, X, CoinsIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import api from "../utils/axios";
-import { setUserData } from "../redux/user.slice";
+import { setUserData } from "../redux/user.slice.js";
 import { getConversations } from "../features/conversation.api";
-import { setConversations, setSelectedConversation } from "../redux/conversation.slice";
+import { setConversations, setSelectedConversation } from "../redux/conversationSlice.js";
 import { getMessages } from "../features/message.api";
-import { setArtifacts, setMessages } from "../redux/message.slice";
+import { setArtifacts, setMessages } from "../redux/messageSlice.js";
 import BillingDrawer from "./BillingDrawer";
 
 export default function Sidebar() {
@@ -135,7 +135,7 @@ export default function Sidebar() {
         <span className="text-[16px] font-semibold text-slate-100 tracking-tight flex-1">Orbit</span>
 
         <span className="text-[10px] font-medium text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full tracking-wide">
-          {userData?.plan ?? "pro"}
+          {userData?.plan ?? "Pro"}
         </span>
 
         <button
@@ -200,7 +200,11 @@ export default function Sidebar() {
       {/* Footer */}
       <div className="px-3.5 py-3.5">
         {userData ? (
-          <div className="flex items-center gap-2.5 cursor-pointer rounded-xl px-3 py-2.5 hover:bg-white/[0.05] transition-colors duration-150">
+          <div
+            onClick={() => setShowBilling(true)}
+            className="flex items-center gap-2.5 cursor-pointer rounded-xl px-3 py-2.5 hover:bg-white/[0.05] transition-colors duration-150"
+            title="Open account billing"
+          >
             <div className="relative shrink-0">
               {!userData?.avatar || imageError ? (
                 <div className="w-9 h-9 rounded-[10px] bg-white/[0.06] flex items-center justify-center">
@@ -218,7 +222,9 @@ export default function Sidebar() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[13.5px] font-semibold text-slate-100 truncate">{userData.name}</p>
-              <p className="text-[11px] text-slate-600 mt-px">{userData.plan || "Free Plan"}</p>
+              <p className="text-[11px] text-slate-600 mt-px">
+                {userData.plan || "Free Plan"} • {userData.credits ?? 0}/{userData.totalCredits ?? 0} credits
+              </p>
             </div>
             <div className="flex gap-1">
               <button
