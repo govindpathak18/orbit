@@ -37,7 +37,8 @@ function PanelContent({
 </html>`;
 
   return (
-    <div className="flex flex-col h-full bg-[#0d0f14]">
+    <div className="flex flex-col h-full surface">
+      {/* Panel surface uses theme helper class for consistent background */}
       {/* Header */}
       <div className="h-14 px-4 border-b border-white/[0.06] flex items-center gap-3 shrink-0">
         <button
@@ -70,17 +71,15 @@ function PanelContent({
             <div className="flex items-center gap-1 bg-white/[0.04] border border-white/[0.06] p-1 rounded-lg">
               <button
                 onClick={() => setTab("code")}
-                className={`flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium rounded-md transition-colors duration-150 ${
-                  tab === "code" ? "bg-indigo-500 text-white" : "text-slate-500 hover:text-slate-200"
-                }`}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium rounded-md transition-colors duration-150 ${tab === "code" ? "bg-indigo-500 text-white" : "text-slate-500 hover:text-slate-200"
+                  }`}
               >
                 <Code2 size={11} /> Code
               </button>
               <button
                 onClick={() => setTab("preview")}
-                className={`flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium rounded-md transition-colors duration-150 ${
-                  tab === "preview" ? "bg-indigo-500 text-white" : "text-slate-500 hover:text-slate-200"
-                }`}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium rounded-md transition-colors duration-150 ${tab === "preview" ? "bg-indigo-500 text-white" : "text-slate-500 hover:text-slate-200"
+                  }`}
               >
                 <Eye size={11} /> Preview
               </button>
@@ -103,9 +102,8 @@ function PanelContent({
               <button
                 key={f.name}
                 onClick={() => setActiveFile(index)}
-                className={`px-4 py-2.5 text-[11px] font-medium whitespace-nowrap transition-colors duration-150 border-r border-white/[0.05] relative cursor-pointer bg-transparent ${
-                  activeFileIndex === index ? "text-indigo-400" : "text-slate-500 hover:text-slate-300"
-                }`}
+                className={`px-4 py-2.5 text-[11px] font-medium whitespace-nowrap transition-colors duration-150 border-r border-white/[0.05] relative cursor-pointer bg-transparent ${activeFileIndex === index ? "text-indigo-400" : "text-slate-500 hover:text-slate-300"
+                  }`}
               >
                 {f.name}
                 {activeFileIndex === index && (
@@ -173,11 +171,11 @@ function PanelContent({
 }
 
 export default function ArtifactPanel() {
-  const [tab, setTab]               = useState("code");
+  const [tab, setTab] = useState("code");
   const [activeFile, setActiveFile] = useState(0);
-  const [collapsed, setCollapsed]   = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [copied, setCopied]         = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const { artifacts } = useSelector((state) => state.message);
   const artifact = artifacts?.[0];
@@ -262,8 +260,9 @@ export default function ArtifactPanel() {
             animate={{ width: 48, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
             transition={{ duration: 0.22, ease: "easeInOut" }}
-            className="hidden lg:flex h-full border-l border-white/[0.06] bg-[#0d0f14] flex-col items-center py-4 gap-3 shrink-0"
+            className="hidden lg:flex h-full border-l border-white/[0.06] surface flex-col items-center py-4 gap-3 shrink-0"
           >
+            {/* Collapsed panel uses `surface` helper */}
             <button
               onClick={() => setCollapsed(false)}
               className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-white/[0.05] transition-colors duration-150 bg-transparent border-none cursor-pointer"

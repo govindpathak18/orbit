@@ -1,0 +1,165 @@
+/* Midnight AI theme variables and quick compatibility overrides
+   - Defined under .theme-midnight so multiple themes can coexist
+   - Includes override selectors for common Tailwind arbitrary classes used in the app
+   - Inline comments explain each section for easy maintenance
+*/
+
+/* Theme variables (exposed on :root so the theme is active by default).
+   Keep the `.theme-midnight` alias so the app can toggle themes by adding
+   the `theme-midnight` class to a parent element later if desired.
+*/
+:root {
+    --bg: #070B14;
+    /* slightly richer than pure black */
+    --surface: #111827;
+    /* cards, sidebars */
+    --surface-2: #1F2937;
+    /* elevated components */
+
+    --text: #F8FAFC;
+    /* primary text */
+    --muted: #94A3B8;
+    /* secondary text */
+
+    --accent: #7C5CFF;
+    /* primary violet */
+    --accent-2: #22D3EE;
+    /* softer cyan */
+
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+
+    --border: #2A3441;
+}
+
+/* Alias class for toggling the theme on a root element if needed */
+.theme-midnight {
+    /* variables already live on :root; this class is an alias for toggling */
+}
+
+/* Apply theme to the document body by adding `theme-midnight` to <html> or <body>.
+   We will ensure the theme is active by default — the app can toggle this class later.
+*/
+:root,
+html,
+body {
+    box-sizing: border-box;
+}
+
+html.theme-midnight,
+body.theme-midnight,
+.theme-midnight {
+    background-color: var(--bg);
+    color: var(--text);
+}
+
+/* Basic element defaults using variables */
+.theme-midnight a {
+    color: var(--accent);
+}
+
+.theme-midnight .text-muted {
+    color: var(--muted);
+}
+
+.theme-midnight .border-theme {
+    border-color: var(--border);
+}
+
+/* Override some frequently-used Tailwind arbitrary hex classes to use variables.
+   These selectors use attribute matching to find class names that contain
+   the literal arbitrary value (e.g. bg-[#0d0f14]). We use !important to ensure
+   the variable-based color takes precedence over Tailwind's inline utilities.
+*/
+.theme-midnight [class*="bg-[#0d0f14]"] {
+    background-color: var(--surface) !important;
+}
+
+.theme-midnight [class*="bg-[#0f1117]"] {
+    background-color: var(--surface-2) !important;
+}
+
+.theme-midnight [class*="bg-[#13151c]"] {
+    background-color: var(--surface-2) !important;
+}
+
+/* These target white-border utilities like border-white/[0.06] and coerce them */
+.theme-midnight [class*="border-white"] {
+    border-color: var(--border) !important;
+}
+
+/* Text color mappings for common Tailwind slate classes used across components */
+.theme-midnight .text-slate-100 {
+    color: var(--text) !important;
+}
+
+.theme-midnight .text-slate-300 {
+    color: var(--muted) !important;
+}
+
+.theme-midnight .text-slate-400 {
+    color: var(--muted) !important;
+}
+
+.theme-midnight .text-slate-500 {
+    color: var(--muted) !important;
+}
+
+/* Accent utility example: provide helper classes to use in components.
+   Define both global helper classes and namespaced aliases (.theme-midnight)
+   so components that already reference `.surface` / `.bg-accent` receive
+   correct styling immediately while still allowing a class-based toggle.
+*/
+
+/* Global helpers (usable directly in JSX className) */
+.bg-accent {
+    background-color: var(--accent) !important;
+}
+
+.text-accent {
+    color: var(--accent) !important;
+}
+
+.bg-accent-2 {
+    background-color: var(--accent-2) !important;
+}
+
+.surface {
+    background-color: var(--surface);
+}
+
+.surface-2 {
+    background-color: var(--surface-2);
+}
+
+.border-theme {
+    border-color: var(--border);
+}
+
+/* Namespaced aliases (for toggling via `.theme-midnight`) */
+.theme-midnight .bg-accent {
+    background-color: var(--accent) !important;
+}
+
+.theme-midnight .text-accent {
+    color: var(--accent) !important;
+}
+
+.theme-midnight .bg-accent-2 {
+    background-color: var(--accent-2) !important;
+}
+
+.theme-midnight .surface {
+    background-color: var(--surface);
+}
+
+.theme-midnight .surface-2 {
+    background-color: var(--surface-2);
+}
+
+.theme-midnight .border-theme {
+    border-color: var(--border);
+}
+
+/* End of theme file */

@@ -3,9 +3,10 @@ import { useSelector } from "react-redux";
 
 export default function Navbar() {
   const { conversations, selectedConversation } = useSelector(state => state.conversation);
-  const {messages} = useSelector(state => state.message);
+  const { messages } = useSelector(state => state.message);
   return (
-    <div className="h-14 flex items-center justify-between px-5 border-b border-white/[0.06] bg-[#0d0f14]">
+    <div className="h-14 flex items-center justify-between px-5 border-b border-white/[0.06] surface">
+      {/* Replaced explicit hex background with `surface` (theme variable) */}
 
       {/* Left — chat title */}
       <div className="flex items-center gap-2.5">
@@ -21,7 +22,13 @@ export default function Navbar() {
       </div>
 
       {/* Right — actions */}
-     
+      <div className="flex items-center gap-3">
+        {/* Small status action to make the header feel more useful */}
+        <button className="hidden md:inline-flex items-center gap-2 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 py-2 text-slate-400 hover:text-slate-200 transition-colors duration-150">
+          <ChartBar size={14} />
+          <span className="text-[12px]">{messages.length} messages</span>
+        </button>
+      </div>
 
     </div>
   );

@@ -1,1 +1,13 @@
 @import "tailwindcss";
+/* Theme variables for Midnight AI */
+@import "./styles/theme.css";
+
+/* Theme is active by default because variables are exposed on :root in theme.css.
+   If you prefer to toggle themes at runtime, add/remove the `theme-midnight`
+   class to the top-level <html> element and update the CSS accordingly.
+*/
+html,
+body {
+    background-color: var(--bg);
+    color: var(--text);
+}

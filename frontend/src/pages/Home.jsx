@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { FaGoogle } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 import ArtifactPanel from "../components/ArtifactPanel";
 import ChatArea from "../components/ChatArea";
 import Sidebar from "../components/Sidebar";
@@ -31,7 +31,8 @@ function Home() {
     };
 
     return (
-        <div className="h-screen flex bg-[#0d0f14] text-white overflow-hidden">
+        <div className="h-screen flex surface text-white overflow-hidden">
+            {/* Root surface uses theme variable for consistent page background */}
             <Sidebar />
             <ChatArea />
             <ArtifactPanel />
@@ -39,23 +40,23 @@ function Home() {
             {/* unauthenticated user, show login modal */}
             {!userData && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                    <div className="w-85 bg-[#13151c] border border-white/8 rounded-2xl p-7 flex flex-col gap-5">
+                    <div className="w-85 surface-2 border border-white/8 rounded-2xl p-7 flex flex-col gap-5">
+                        {/* Login modal surface switched to `surface-2` for legibility */}
 
                         <div className="flex flex-col gap-1">
                             <h2 className="text-[17px] font-semibold text-slate-100 tracking-tight">Welcome to Orbit</h2>
                             <p className="text-[13px] text-slate-500">Please login to continue using the app.</p>
+                            <p className="text-[12px] text-slate-500">Login once to access conversations, billing, and AI generation features.</p>
                         </div>
 
                         <button
                             onClick={handleGoogleLogin}
                             className="w-full flex items-center justify-center gap-3 py-2.75 
-                            rounded-xl text-sm font-medium text-white bg-linear-to-br
-                             from-indigo-500 to-violet-700 hover:from-indigo-400 hover:to-violet-600 
-                             active:from-indigo-600 active:to-violet-800 border border-indigo-500/30 
-                             shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all duration-150 
-                             cursor-pointer"
+                            rounded-xl text-sm font-medium text-slate-800 bg-white border border-slate-200
+                            hover:bg-slate-100 active:bg-slate-200 shadow-sm transition-all duration-150 
+                            cursor-pointer"
                         >
-                            <FaGoogle size={15} className="text-white" />
+                            <FcGoogle size={15} className="text-white" />
                             Continue with Google
                         </button>
 

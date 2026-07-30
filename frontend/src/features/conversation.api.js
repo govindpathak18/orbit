@@ -1,30 +1,35 @@
 import api from "../utils/axios";
 
 
-export const getConversations =async()=>{
+export const getConversations = async () => {
 
- const response =await api.get( "/api/chat/get-conversations"
- );
+   const response = await api.get("/api/chat/get-conversations"
+   );
 
- return response.data;
-
-};
-
-export const updateConversations =async(conversationId,title)=>{
-
- const response =await api.post( "/api/chat/update-conversation",{
-    conversationId,title
- }
- );
-
- return response.data;
+   return response.data;
 
 };
 
-export const createConversation =async()=>{
+export const updateConversations = async (conversationId, title) => {
 
- const response =await api.post("/api/chat/create-conversation",{});
+   const response = await api.post("/api/chat/update-conversation", {
+      conversationId, title
+   }
+   );
 
- return response.data;
+   return response.data;
 
+};
+
+export const createConversation = async () => {
+
+   const response = await api.post("/api/chat/create-conversation", {});
+
+   return response.data;
+
+};
+
+export const deleteConversation = async (conversationId) => {
+   const response = await api.delete(`/api/chat/delete-conversation/${conversationId}`);
+   return response.data;
 };

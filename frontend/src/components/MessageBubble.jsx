@@ -7,7 +7,7 @@ import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Copy, Check } from "lucide-react";
 
 function MessageBubble({ role, content, images }) {
-  
+
   const isUser = role === "user";
   const [lightboxSrc, setLightboxSrc] = useState(null);
   const [copiedCode, setCopiedCode] = useState("");
@@ -146,9 +146,11 @@ function MessageBubble({ role, content, images }) {
               const language = className.replace("language-", "");
 
               return (
-                <div className="my-4 overflow-hidden rounded-xl border border-white/10 bg-[#111318]">
+                <div className="my-4 overflow-hidden rounded-xl border border-white/10 surface-2">
+                  {/* Code block container now uses `surface-2` for contrast */}
 
-                  <div className="flex items-center justify-between bg-[#1b1d24] border-b border-white/10 px-4 py-2">
+                  <div className="flex items-center justify-between surface-2 border-b border-white/10 px-4 py-2">
+                    {/* Code block header uses elevated surface style */}
 
                     <span className="uppercase text-xs text-slate-400">
                       {language}
@@ -181,7 +183,7 @@ function MessageBubble({ role, content, images }) {
                     customStyle={{
                       margin: 0,
                       padding: "16px",
-                      background: "#0d1117",
+                      background: "var(--surface)",
                       fontSize: "13px",
                     }}
                   >

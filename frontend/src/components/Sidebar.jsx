@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Plus, MessageSquare, LogOut, User, PenSquare, Menu, X, CoinsIcon } from "lucide-react";
+import { Plus, MessageSquare, LogOut, User, PenSquare, Menu, X, CoinsIcon, Trash2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import api from "../utils/axios";
 import { setUserData } from "../redux/user.slice.js";
-import { getConversations } from "../features/conversation.api";
-import { setConversations, setSelectedConversation } from "../redux/conversationSlice.js";
+import { deleteConversation, getConversations } from "../features/conversation.api";
+import { removeConversation, setConversations, setSelectedConversation } from "../redux/conversationSlice.js";
 import { getMessages } from "../features/message.api";
 import { setArtifacts, setMessages } from "../redux/messageSlice.js";
 import BillingDrawer from "./BillingDrawer";
@@ -55,6 +55,25 @@ export default function Sidebar() {
     dispatch(setArtifacts(messages.artifacts));
   };
 
+  const handleDeleteConversation = async (event, conversation) => {
+    event.stopPropagation();
+
+    const confirmed = window.confirm("Delete this conversation?");
+    if (!confirmed) return;
+
+    try {
+      await deleteConversation(conversation._id);
+      dispatch(removeConversation(conversation._id));
+      if (selectedConversation?._id === conversation._id) {
+        dispatch(setMessages([]));
+        dispatch(setArtifacts([]));
+      }
+      setMobileOpen(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const PanelIcon = () => (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -64,7 +83,7 @@ export default function Sidebar() {
 
   /* ── Collapsed rail helper ── */
   const renderCollapsedRail = () => (
-    <div className="hidden lg:flex flex-col items-center w-[56px] h-screen bg-[#0d0f14] border-r border-white/[0.06] py-4 gap-1 shrink-0">
+    <div className="hidden lg:flex flex-col items-center w-[56px] h-screen surface border-r border-white/[0.06] py-4 gap-1 shrink-0">
       <button
         onClick={() => setCollapsed(false)}
         className="flex items-center justify-center w-9 h-9 rounded-xl text-slate-500 hover:text-slate-200 hover:bg-white/[0.05] transition-colors duration-150 bg-transparent border-none cursor-pointer mb-1"
@@ -134,9 +153,15 @@ export default function Sidebar() {
 
         <span className="text-[16px] font-semibold text-slate-100 tracking-tight flex-1">Orbit</span>
 
-        <span className="text-[10px] font-medium text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full tracking-wide">
-          {userData?.plan ?? "Pro"}
-        </span>
+        {/* Plan + credit summary shown in the sidebar header */}
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-medium text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full tracking-wide">
+            {userData?.plan ?? "Free"}
+          </span>
+          <span className="text-[10px] font-medium text-slate-400 bg-white/[0.04] border border-white/[0.08] px-2 py-0.5 rounded-full tracking-wide">
+            {userData?.credits ?? 0}/{userData?.totalCredits ?? 0} credits
+          </span>
+        </div>
 
         <button
           onClick={handleCreateConversation}
@@ -146,7 +171,7 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* New Chat */}
+      {/* New chat button with a short helper note */}
       <div className="px-4 pt-4 pb-1">
         <button
           onClick={handleCreateConversation}
@@ -155,6 +180,9 @@ export default function Sidebar() {
           <Plus size={15} />
           New Chat
         </button>
+        <p className="mt-3 text-[11px] text-slate-500 leading-relaxed">
+          Start a new conversation, upload a file, or choose an assistant from the composer.
+        </p>
       </div>
 
       {conversations.length === 0 ? (
@@ -187,9 +215,18 @@ export default function Sidebar() {
               >
                 <MessageSquare size={13} />
               </div>
-              <p className={`text-[13px] font-medium truncate ${isActive ? "text-slate-100" : "text-slate-300"}`}>
+              <p className={`text-[13px] font-medium truncate flex-1 ${isActive ? "text-slate-100" : "text-slate-300"}`}>
                 {chat.title}
               </p>
+              {isHov && (
+                <button
+                  onClick={(event) => handleDeleteConversation(event, chat)}
+                  className="flex items-center justify-center w-7 h-7 rounded-lg border-none bg-transparent text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-150"
+                  title="Delete conversation"
+                >
+                  <Trash2 size={14} />
+                </button>
+              )}
             </div>
           );
         })}
@@ -259,7 +296,7 @@ export default function Sidebar() {
       {/* Mobile hamburger */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-3.5 left-4 z-50 flex items-center justify-center w-8 h-8 rounded-lg bg-[#0d0f14] border border-white/[0.06] text-slate-400 hover:text-slate-200 transition-colors duration-150 cursor-pointer"
+        className="lg:hidden fixed top-3.5 left-4 z-50 flex items-center justify-center w-8 h-8 rounded-lg surface border border-white/[0.06] text-slate-400 hover:text-slate-200 transition-colors duration-150 cursor-pointer"
       >
         <Menu size={16} />
       </button>
@@ -277,7 +314,7 @@ export default function Sidebar() {
         className={`
         fixed lg:static inset-y-0 left-0 z-50
         w-[270px] h-screen shrink-0
-        bg-[#0d0f14] border-r border-white/[0.06]
+        surface border-r border-white/[0.06]
         transition-transform duration-250
         ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}

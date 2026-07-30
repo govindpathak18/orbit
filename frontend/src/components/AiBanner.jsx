@@ -11,19 +11,19 @@ export default function AIBanner({
   onClose
 }) {
 
-    useEffect(()=>{
+  useEffect(() => {
 
-  if(!open) return;
+    if (!open) return;
 
-  const timer=setTimeout(()=>{
+    const timer = setTimeout(() => {
 
       onClose();
 
-  },5000);
+    }, 5000);
 
-  return ()=>clearTimeout(timer);
+    return () => clearTimeout(timer);
 
-},[open]);
+  }, [open]);
 
   return (
 
@@ -56,7 +56,8 @@ export default function AIBanner({
 
         >
 
-          <div className="rounded-2xl border border-amber-500/20 bg-[#14161b] shadow-2xl overflow-hidden">
+          <div className="rounded-2xl border border-amber-500/20 surface-2 shadow-2xl overflow-hidden">
+            {/* Banner surface changed to `surface-2` for better contrast with page background */}
 
             <div className="h-1 bg-gradient-to-r from-amber-400 to-orange-500" />
 

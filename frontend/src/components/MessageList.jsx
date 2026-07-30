@@ -144,6 +144,9 @@ export default function MessageList() {
               </button>
             ))}
           </div>
+          <p className="text-[11px] text-slate-500 max-w-[300px] leading-relaxed">
+            Tip: press the “New Chat” button or select an existing conversation to begin.
+          </p>
         </div>
       ) : (
         <>

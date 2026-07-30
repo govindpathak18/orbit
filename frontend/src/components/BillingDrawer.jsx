@@ -54,12 +54,6 @@ export default function BillingDrawer({ open, onClose }) {
     }
   };
 
-  console.log((
-    (userData?.credits || 0) /
-    (userData?.totalCredits || 1)
-  ) * 100)
-
-
   return (
     // to create multiple motion.div
     <AnimatePresence>
@@ -80,8 +74,9 @@ export default function BillingDrawer({ open, onClose }) {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: .25 }}
-            className="fixed right-0 top-0 z-50 h-screen w-[380px] bg-[#0f1117] border-l border-white/10 shadow-2xl flex flex-col"
+            className="fixed right-0 top-0 z-50 h-screen w-[380px] surface-2 border-l border-white/10 shadow-2xl flex flex-col"
           >
+            {/* Drawer background now uses theme `surface-2` to match elevated panels */}
 
             {/* Header */}
             <div className="flex items-center justify-between p-5 border-b border-white/10">
@@ -123,7 +118,7 @@ export default function BillingDrawer({ open, onClose }) {
 
                 <div className="mt-5">
                   <div className="flex justify-between text-xs text-slate-400 mb-2">
-                    <span>Credits</span>
+                    <span>Credits remaining</span>
                     <span>
                       {credits === null || totalCredits === null
                         ? "Unavailable"
@@ -140,7 +135,11 @@ export default function BillingDrawer({ open, onClose }) {
                     <p className="mt-2 text-[11px] text-amber-300">
                       Credit data is unavailable. Please refresh or login again.
                     </p>
-                  ) : null}
+                  ) : (
+                    <p className="mt-2 text-[11px] text-slate-400">
+                      Credits are used for PDFs, images, PPTs, and AI generations.
+                    </p>
+                  )}
                 </div>
 
               </div>
@@ -166,6 +165,10 @@ export default function BillingDrawer({ open, onClose }) {
                   500 Credits
                 </p>
 
+                <ul className="mt-4 space-y-2 text-[13px] text-slate-400">
+                  <li>• Best for occasional use</li>
+                  <li>• Generate images, PDFs, and search tasks</li>
+                </ul>
                 <button className="mt-4 w-full rounded-lg bg-indigo-600 hover:bg-indigo-700 py-2 text-white" onClick={() => handleUpgrade("starter")}>
                   Upgrade
                 </button>

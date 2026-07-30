@@ -32,7 +32,7 @@ export const getConversations = async (req, res) => {
     const userId = req.headers["x-user-id"];
     const conversations = await Conversation.find({
       userId: userId
-    }).sort({updatedAt:-1});
+    }).sort({ updatedAt: -1 });
 
     res.json(
       conversations
@@ -69,10 +69,10 @@ export const saveMessage = async (req, res) => {
       role,
       images,
       content,
-      artifacts:artifacts || []
+      artifacts: artifacts || []
     });
 
-    if(!message) return res.json({"message" : "no message to save"})
+    if (!message) return res.json({ "message": "no message to save" })
 
     res.json(
       message
@@ -91,8 +91,8 @@ export const saveMessage = async (req, res) => {
 export const getMessages = async (req, res) => {
   try {
     const messages = await Message.find({
-      conversationId:req.params.id
-    }).sort({createdAt:1});
+      conversationId: req.params.id
+    }).sort({ createdAt: 1 });
 
     res.json(
       messages
@@ -123,5 +123,33 @@ export const updateConversation = async (req, res) => {
       message: error.message
     });
 
+  }
+}
+
+// delete a conversation and its saved messages
+export const deleteConversation = async (req, res) => {
+  try {
+    const userId = req.headers["x-user-id"];
+    const { id } = req.params;
+
+    const conversation = await Conversation.findOneAndDelete({
+      _id: id,
+      userId
+    });
+
+    if (!conversation) {
+      return res.status(404).json({ message: "Conversation not found" });
+    }
+
+    await Message.deleteMany({ conversationId: id });
+
+    res.json({
+      message: "Conversation deleted successfully",
+      conversationId: id
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message
+    });
   }
 }
