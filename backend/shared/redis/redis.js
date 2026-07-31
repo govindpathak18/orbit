@@ -1,31 +1,23 @@
+import fs from "fs";
 import Redis from "ioredis";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const redisUrl = process.env.REDIS_URL || "redis://127.0.0.1:6379";
+const isContainer = fs.existsSync("/.dockerenv");
+const redisUrl = process.env.REDIS_URL || (isContainer ? "redis://redis:6379" : "redis://127.0.0.1:6379");
 
 const redis = new Redis(redisUrl, {
-  connectTimeout: 10000,
   maxRetriesPerRequest: 3,
-  retryStrategy(times) {
-    if (times > 3) {
-      return null;
-    }
-    return Math.min(times * 100, 2000);
-  },
+  enableOfflineQueue: false,
 });
 
 redis.on("connect", () => {
   console.log("✅ Redis Connected");
 });
 
-let redisErrorLogged = false;
-redis.on("error", (error) => {
-  if (!redisErrorLogged) {
-    redisErrorLogged = true;
-    console.error("Redis error:", error);
-  }
+redis.on("error", (err) => {
+  console.error("Redis error:", err.message);
 });
 
 export default redis;
