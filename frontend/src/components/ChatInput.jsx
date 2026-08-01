@@ -21,7 +21,7 @@ export default function ChatInput({
   // state to hold the input value and whether the mic is listening
   const [isListening, setIsListening] = useState(false);
 
-  // ref to hold the speech recognition instance
+  // ref to hold the speech recognition instance provided by js
   const recognitionRef = useRef(null);
 
   const dispatch = useDispatch();
@@ -107,7 +107,7 @@ export default function ChatInput({
   // useEffect to initialize the speech recognition instance and set up event listeners
   useEffect(() => {
 
-    // check if the browser supports speech recognition
+    // check if the browser supports js speech recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) return;
