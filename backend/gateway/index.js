@@ -59,6 +59,7 @@ app.use("/api/billing", protect, proxyWithUser(process.env.BILLING_SERVICE))
 
 app.get("/", (req, res) => {
   res.status(200).json({
+    "message": "Gateway is running smoothly",
     service: "gateway",
     status: "ok"
   });
