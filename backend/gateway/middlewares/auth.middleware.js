@@ -21,10 +21,20 @@ const normalizeUser = (user) => {
 // middleware to protect routes
 export const protect = async (req, res, next) => {
   try {
-    const sessionId = req?.cookies?.session;
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
+
+    const sessionId = authHeader.substring(7).trim();
 
     if (!sessionId) {
       return res.status(401).json({
+        success: false,
         message: "Unauthorized"
       });
     }
@@ -34,7 +44,8 @@ export const protect = async (req, res, next) => {
 
     if (!session) {
       return res.status(401).json({
-        message: "Session Expired"
+        success: false,
+        message: "Unauthorized"
       });
     }
 

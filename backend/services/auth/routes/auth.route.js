@@ -12,11 +12,34 @@ const router = express.Router();
 
 router.post("/login", login);
 
-router.get("/logout", logout);
+router.post("/logout", (req, res, next) => {
+    const authHeader = req.headers.authorization;
 
-router.patch("/internal/update-plan",updatePlan);
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorized"
+        });
+    }
 
-router.patch("/internal/deduct-credits",deductCredits);
+    next();
+}, logout);
+router.get("/logout", (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorized"
+        });
+    }
+
+    next();
+}, logout);
+
+router.patch("/internal/update-plan", updatePlan);
+
+router.patch("/internal/deduct-credits", deductCredits);
 
 
 export default router;
