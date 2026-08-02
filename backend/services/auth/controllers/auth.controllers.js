@@ -74,14 +74,13 @@ export const login = async (req, res) => {
     // create session and return user data
     const sessionId = crypto.randomUUID();
 
-    // store session in redis with user data and set cookie
+    // store session in redis with user data
     await redis.set(
       `user-session:${user._id}`,
       sessionId,
       "EX",
       60 * 60 * 24 * 7
     );
-
 
     await redis.set(
       `session:${sessionId}`,
@@ -107,6 +106,7 @@ export const login = async (req, res) => {
     return res.json({
       success: true,
       user,
+      sessionId,
     });
   } catch (error) {
     return res.status(401).json({
@@ -116,13 +116,40 @@ export const login = async (req, res) => {
 };
 
 
-// delete session from redis and clear cookie
+const getSessionIdFromRequest = (req) => {
+  const authHeader = req.headers.authorization || req.headers.Authorization || "";
+  const fallbackHeader = req.headers["x-session-id"] || req.headers["x-auth-token"] || req.headers["x-access-token"];
+
+  if (authHeader.startsWith("Bearer ")) {
+    return authHeader.slice(7).trim();
+  }
+
+  if (typeof fallbackHeader === "string") {
+    return fallbackHeader.trim();
+  }
+
+  return req.cookies?.session || null;
+};
+
+// delete session from redis using the bearer token/header, with cookie fallback
 export const logout = async (req, res) => {
   try {
-    const sessionId = req.cookies?.session;
+    const sessionId = getSessionIdFromRequest(req);
 
-    // delete session from redis
     if (sessionId) {
+      const sessionData = await redis.get(`session:${sessionId}`);
+
+      if (sessionData) {
+        try {
+          const parsedSession = JSON.parse(sessionData);
+          if (parsedSession?.userId) {
+            await redis.del(`user-session:${parsedSession.userId}`);
+          }
+        } catch {
+          // ignore malformed session payloads
+        }
+      }
+
       await redis.del(`session:${sessionId}`);
     }
 

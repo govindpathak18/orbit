@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Plus, MessageSquare, LogOut, User, PenSquare, Menu, X, CoinsIcon, Trash2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import api from "../utils/axios";
+import { clearSessionId } from "../utils/session";
 import { setUserData } from "../redux/user.slice.js";
 import { deleteConversation, getConversations } from "../features/conversation.api";
 import { removeConversation, setConversations, setSelectedConversation } from "../redux/conversationSlice.js";
@@ -21,10 +22,12 @@ export default function Sidebar() {
 
   const logout = async () => {
     try {
-      await api.get("/api/auth/logout");
-      dispatch(setUserData(null));
+      await api.post("/api/auth/logout");
     } catch (error) {
       console.log(error);
+    } finally {
+      clearSessionId();
+      dispatch(setUserData(null));
     }
   };
 

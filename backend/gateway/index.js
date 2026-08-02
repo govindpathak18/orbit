@@ -8,7 +8,6 @@ import proxy from "express-http-proxy";
 import { proxyWithUser } from "./utils/proxyWithHeaders.js";
 import { protect } from "./middlewares/auth.middleware.js";
 import { getCurrentUser } from "./controllers/user.controller.js";
-import cookieParser from "cookie-parser"
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000
@@ -40,7 +39,7 @@ app.use(
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "x-user-id", "x-user-email", "x-user-role", "Cookie"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-user-id", "x-user-email", "x-user-role", "x-session-id", "x-auth-token", "x-access-token", "Cookie"],
     exposedHeaders: ["set-cookie"],
     optionsSuccessStatus: 204,
   })
@@ -55,7 +54,6 @@ app.use(
 // middlewares
 app.use(helmet()); // security headers
 app.use(morgan("dev")); // logs fetched api's 
-app.use(cookieParser()); // parse cookies
 app.use(express.json()); // parse json
 
 
