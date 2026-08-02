@@ -12,13 +12,27 @@ api.interceptors.request.use((config) => {
     }
 
     const sessionId = getSessionId();
+    const headers = config.headers || {};
 
     if (sessionId) {
-        config.headers = config.headers || {};
-        config.headers.Authorization = `Bearer ${sessionId}`;
+        if (typeof headers.set === "function") {
+            headers.set("Authorization", `Bearer ${sessionId}`);
+            headers.set("x-session-id", sessionId);
+        } else {
+            headers.Authorization = `Bearer ${sessionId}`;
+            headers["x-session-id"] = sessionId;
+        }
     } else {
-        delete config.headers?.Authorization;
+        if (typeof headers.delete === "function") {
+            headers.delete("Authorization");
+            headers.delete("x-session-id");
+        } else {
+            delete headers.Authorization;
+            delete headers["x-session-id"];
+        }
     }
+
+    config.headers = headers;
 
     return config;
 });

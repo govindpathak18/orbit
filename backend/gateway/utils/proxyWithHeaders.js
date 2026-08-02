@@ -17,6 +17,11 @@ export const proxyWithUser = (serviceUrl) => {
             proxyReqOpts.headers.authorization = srcReq.headers.authorization;
           }
 
+          const fallbackSessionHeader = srcReq.headers["x-session-id"] || srcReq.headers["x-auth-token"] || srcReq.headers["x-access-token"];
+          if (fallbackSessionHeader) {
+            proxyReqOpts.headers["x-session-id"] = fallbackSessionHeader;
+          }
+
           if (srcReq.user) { // if the user is authenticated, add user information to the header
 
             // custom headers to pass user information to the downstream service

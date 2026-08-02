@@ -32,7 +32,7 @@ app.use(
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "x-user-id", "x-user-email", "x-user-role", "Cookie"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-user-id", "x-user-email", "x-user-role", "x-session-id", "x-auth-token", "x-access-token", "Cookie"],
     exposedHeaders: ["set-cookie"],
     optionsSuccessStatus: 204,
   })

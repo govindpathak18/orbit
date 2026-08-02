@@ -18,19 +18,25 @@ const normalizeUser = (user) => {
   };
 };
 
+const getSessionIdFromRequest = (req) => {
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  const fallbackHeader = req.headers["x-session-id"] || req.headers["x-auth-token"] || req.headers["x-access-token"];
+
+  if (typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
+    return authHeader.substring(7).trim();
+  }
+
+  if (typeof fallbackHeader === "string") {
+    return fallbackHeader.trim();
+  }
+
+  return null;
+};
+
 // middleware to protect routes
 export const protect = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
-        success: false,
-        message: "Unauthorized"
-      });
-    }
-
-    const sessionId = authHeader.substring(7).trim();
+    const sessionId = getSessionIdFromRequest(req);
 
     if (!sessionId) {
       return res.status(401).json({

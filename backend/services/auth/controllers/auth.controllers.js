@@ -94,13 +94,25 @@ export const login = async (req, res) => {
 };
 
 
+const getSessionIdFromRequest = (req) => {
+  const authHeader = req.headers.authorization || req.headers.Authorization || "";
+  const fallbackHeader = req.headers["x-session-id"] || req.headers["x-auth-token"] || req.headers["x-access-token"];
+
+  if (authHeader.startsWith("Bearer ")) {
+    return authHeader.slice(7).trim();
+  }
+
+  if (typeof fallbackHeader === "string") {
+    return fallbackHeader.trim();
+  }
+
+  return null;
+};
+
 // delete session from redis using the bearer token
 export const logout = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization || "";
-    const sessionId = authHeader.startsWith("Bearer ")
-      ? authHeader.slice(7).trim()
-      : null;
+    const sessionId = getSessionIdFromRequest(req);
 
     if (sessionId) {
       const sessionData = await redis.get(`session:${sessionId}`);
