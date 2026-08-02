@@ -45,8 +45,7 @@ function Home() {
 
                         <div className="flex flex-col gap-1">
                             <h2 className="text-[17px] font-semibold text-slate-100 tracking-tight">Welcome to Orbit</h2>
-                            <p className="text-[13px] text-slate-500">Please login to continue using the app.</p>
-                            <p className="text-[12px] text-slate-500">Login once to access conversations, billing, and AI generation features.</p>
+                            <p className="text-sm text-slate-400">Sign in to continue</p>
                         </div>
 
                         <button
