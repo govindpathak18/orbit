@@ -4,7 +4,7 @@ import ArtifactPanel from "../components/ArtifactPanel";
 import ChatArea from "../components/ChatArea";
 import Sidebar from "../components/Sidebar";
 import api from "../utils/axios";
-import { setSessionId } from "../utils/session";
+import { clearSessionId, setSessionId } from "../utils/session";
 import { setUserData } from "../redux/user.slice";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../../firebase";
@@ -23,7 +23,7 @@ function Home() {
             }
             dispatch(setUserData(data.user))
         } catch (error) {
-            localStorage.removeItem(SESSION_STORAGE_KEY)
+            clearSessionId()
             console.log(error)
         }
     }
