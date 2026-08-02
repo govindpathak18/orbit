@@ -19,6 +19,7 @@ export default function Sidebar() {
   const { conversations, selectedConversation } = useSelector((state) => state.conversation);
   const dispatch = useDispatch();
   const [showBilling, setShowBilling] = useState(false);
+  const currentUserId = userData?._id || userData?.userId;
 
   const logout = async () => {
     try {
@@ -32,7 +33,7 @@ export default function Sidebar() {
   };
 
   useEffect(() => {
-    if (!userData?._id) {
+    if (!currentUserId) {
       dispatch(setConversations([]));
       return;
     }
@@ -46,7 +47,7 @@ export default function Sidebar() {
       }
     };
     fetchConversations();
-  }, [userData?._id, dispatch]);
+  }, [currentUserId, dispatch]);
 
   const handleCreateConversation = () => {
     dispatch(setSelectedConversation(null));

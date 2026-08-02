@@ -12,6 +12,8 @@ const normalizeUser = (user) => {
 
   return {
     ...user,
+    _id: user._id || user.userId,
+    userId: user.userId || user._id,
     plan,
     credits: typeof user.credits === "number" ? user.credits : defaultCredits,
     totalCredits: typeof user.totalCredits === "number" ? user.totalCredits : defaultCredits,
@@ -30,7 +32,7 @@ const getSessionIdFromRequest = (req) => {
     return fallbackHeader.trim();
   }
 
-  return null;
+  return req.cookies?.session || req.cookies?.sessionId || null;
 };
 
 // middleware to protect routes

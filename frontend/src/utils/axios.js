@@ -3,7 +3,7 @@ import { clearSessionId, getSessionId } from "./session";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_SERVER_URL,
-    withCredentials: false,
+    withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
