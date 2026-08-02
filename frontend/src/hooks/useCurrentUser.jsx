@@ -12,11 +12,15 @@ function useCurrentUser() {
                 const { data } = await api.get("/api/me")
                 dispatch(setUserData(data.user))
             } catch (error) {
+                if (error?.response?.status === 401) {
+                    dispatch(setUserData(null))
+                    return
+                }
                 console.log(error)
             }
         }
         get()
-    }, [])
+    }, [dispatch])
 }
 
 export default useCurrentUser

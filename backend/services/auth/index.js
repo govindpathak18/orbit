@@ -7,13 +7,22 @@ import router from './routes/auth.route.js';
 
 dotenv.config();
 
+const app = express();
+
+
 app.use(cookieParser());
 app.set("trust proxy", 1);
 
 const PORT = process.env.PORT || 8001;
 
+const parseOrigins = (value = "") =>
+  value
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
 const allowedOrigins = [
-  process.env.CORS_ORIGINS,
+  ...parseOrigins(process.env.CORS_ORIGINS),
   process.env.FRONTEND_URL,
   'http://localhost:5173',
   'http://localhost:5174',
@@ -22,7 +31,6 @@ const allowedOrigins = [
   'http://localhost:3000',
 ].filter(Boolean);
 
-const app = express();
 app.use(
   cors({
     origin: (origin, callback) => {

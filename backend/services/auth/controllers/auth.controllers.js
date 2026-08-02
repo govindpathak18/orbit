@@ -5,6 +5,22 @@ import User from "../models/user.model.js";
 import redis from "../../../shared/redis/redis.js";
 import { app } from "../config/firebase.js";
 
+const isLocalOrigin = (origin = "") =>
+  origin.startsWith("http://localhost") || origin.startsWith("http://127.0.0.1");
+
+const getSessionCookieOptions = (req) => {
+  const secureFromEnv = process.env.COOKIE_SECURE;
+  const secure =
+    typeof secureFromEnv === "string"
+      ? secureFromEnv === "true"
+      : !isLocalOrigin(req.get("origin"));
+
+  return {
+    httpOnly: true,
+    secure,
+    sameSite: secure ? "none" : "lax",
+  };
+};
 
 // continue with google -> if user exists, create session and return user data
 // else create user, create session and return user data
@@ -84,9 +100,7 @@ export const login = async (req, res) => {
 
     // set cookie with session id
     res.cookie("session", sessionId, {
-      httpOnly: true,
-      secure: true, // only when using https server
-      sameSite: "none",
+      ...getSessionCookieOptions(req),
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
@@ -114,9 +128,7 @@ export const logout = async (req, res) => {
 
     // clear cookie
     res.clearCookie("session", {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      ...getSessionCookieOptions(req),
     });
 
     return res.status(200).json({

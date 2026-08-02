@@ -12,9 +12,16 @@ import cookieParser from "cookie-parser"
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000
+app.set("trust proxy", 1);
+
+const parseOrigins = (value = "") =>
+  value
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
 const allowedOrigins = [
-  process.env.CORS_ORIGINS,
+  ...parseOrigins(process.env.CORS_ORIGINS),
   process.env.FRONTEND_URL,
   "http://localhost:5173",
   "http://localhost:5174",
