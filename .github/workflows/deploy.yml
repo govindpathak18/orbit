@@ -159,7 +159,6 @@ jobs:
       - name: Deploy Billing Service
         run: |
           aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER }} --service ${{ secrets.BILLING_SERVICE }} --force-new-deployment
-
           aws ecs wait services-stable --cluster ${{ secrets.ECS_CLUSTER }} --services ${{ secrets.BILLING_SERVICE }}
 
 
@@ -190,6 +189,8 @@ jobs:
 
       - name: Build Frontend
         working-directory: frontend
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
         run: npm run build
 
       - name: Upload to S3
