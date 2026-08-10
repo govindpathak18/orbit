@@ -7,7 +7,7 @@ export const proxyWithUser = (serviceUrl) => {
 
   return proxy(
     serviceUrl, // url of the downstream service
-    {
+    { 
 
       proxyReqOptDecorator: // function that allows us to modify 
         // the request options before sending the request to the downstream service

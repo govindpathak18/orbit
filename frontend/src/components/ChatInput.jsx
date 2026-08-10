@@ -239,10 +239,10 @@ export default function ChatInput({
   };
 
   return (
-    <div className="w-full overflow-hidden px-3 md:px-5 py-4 border-t border-white/[0.06] surface">
+    <div className="w-full overflow-hidden px-3 md:px-5 py-3 border-t border-white/[0.06] surface">
       {/* Composer surface uses theme `surface` for consistent background */}
 
-      <div className="flex flex-col gap-2 bg-white/[0.03] border border-white/[0.07] rounded-2xl px-4 pt-3.5 pb-3">
+      <div className="flex flex-col gap-2 bg-white/[0.03] border border-white/[0.07] rounded-2xl px-4 pt-3 pb-2.5">
 
 
         <div className="flex w-[80%] gap-2 pr-2 flex-wrap">
@@ -339,9 +339,9 @@ export default function ChatInput({
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholders[selectedAgent]}
-          rows={3}
+          rows={2}
           disabled={isLoading}
-          className="w-full bg-transparent outline-none resize-none text-[14px] text-slate-200 placeholder:text-slate-600 leading-relaxed [scrollbar-width:none] [&::-webkit-scrollbar]:hidden disabled:opacity-50"
+          className="w-full bg-transparent outline-none resize-none text-[14px] text-slate-200 placeholder:text-slate-600 leading-snug min-h-[44px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden disabled:opacity-50"
         />
 
         {/* Bottom row */}

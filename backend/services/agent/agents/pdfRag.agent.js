@@ -33,23 +33,23 @@ export const pdfRagAgent = async (state) => {
     const collectionName = `pdf-${Date.now()}`;
 
     // ** store the documents in a vector store (Qdrant) for similarity search
-    const vectorStore = await createVectorStore(collectionName,docs);
+    const vectorStore = await createVectorStore(collectionName, docs);
 
 
 
 
     // perform similarity search on the vector store to find relevant documents based on the user's prompt
     const relevantDocs = await vectorStore.similaritySearch(
-        state.prompt,
-        5 // retrieve top 5 relevant documents
-      );
+      state.prompt,
+      5 // retrieve top 5 relevant documents
+    );
 
     // console.log(relevantDocs);
 
     // create a context string from the relevant documents to provide to the LLM
     const context = relevantDocs
-        .map(doc => doc.pageContent)
-        .join("\n\n");
+      .map(doc => doc.pageContent)
+      .join("\n\n");
 
     const llm = getModel("pdf-rag");
 
@@ -106,7 +106,7 @@ ${state.prompt}
       );
     }
     catch (err) {
-      console.log(err.message);
+      console.error("PDF RAG cleanup error:", err.message || err);
     }
 
   }

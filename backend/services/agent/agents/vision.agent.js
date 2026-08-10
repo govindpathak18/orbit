@@ -66,14 +66,9 @@ Rules:
       try {
         // remove the file after generating the response
         await fs.unlink(state.file.path);
-        console.log("Deleted:", state.file.path);
-
+      } catch (err) {
+        console.error("Vision cleanup error:", err.message || err);
       }
-
-      catch (err) {
-        console.log(err.message);
-      }
-
     }
 
   }

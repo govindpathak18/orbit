@@ -173,7 +173,7 @@ Rules:
 
   } catch (error) {
 
-    console.log(
+    console.error(
       "PDF Agent Error:",
       error
     );
