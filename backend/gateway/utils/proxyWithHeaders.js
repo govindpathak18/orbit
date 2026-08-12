@@ -1,47 +1,35 @@
 import proxy from "express-http-proxy";
 
-// adds user to the header so that the downstream service can access user information
-// as cookies are not passed to the downstream service, we need to pass user information in the header
+// Adds user information to the downstream service request.
+// Cookies are not forwarded, so authentication/user headers are copied manually.
 
 export const proxyWithUser = (serviceUrl) => {
+  return proxy(serviceUrl, {
+    proxyReqPathResolver: (req) => {
+      return req.originalUrl.replace(/^\/api\/(chat|agent|billing)/, "");
+    },
 
-  return proxy(
-    serviceUrl, // url of the downstream service
-    { 
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+      if (srcReq.headers.authorization) {
+        proxyReqOpts.headers.authorization = srcReq.headers.authorization;
+      }
 
-      proxyReqOptDecorator: // function that allows us to modify 
-        // the request options before sending the request to the downstream service
-        (proxyReqOpts, srcReq) => {
+      const fallbackSessionHeader =
+        srcReq.headers["x-session-id"] ||
+        srcReq.headers["x-auth-token"] ||
+        srcReq.headers["x-access-token"];
 
-          if (srcReq.headers.authorization) {
-            proxyReqOpts.headers.authorization = srcReq.headers.authorization;
-          }
+      if (fallbackSessionHeader) {
+        proxyReqOpts.headers["x-session-id"] = fallbackSessionHeader;
+      }
 
-          const fallbackSessionHeader = srcReq.headers["x-session-id"] || srcReq.headers["x-auth-token"] || srcReq.headers["x-access-token"];
-          if (fallbackSessionHeader) {
-            proxyReqOpts.headers["x-session-id"] = fallbackSessionHeader;
-          }
+      if (srcReq.user) {
+        proxyReqOpts.headers["x-user-id"] = srcReq.user.userId;
+        proxyReqOpts.headers["x-user-email"] = srcReq.user.email;
+        proxyReqOpts.headers["x-user-avatar"] = srcReq.user.avatar;
+      }
 
-          if (srcReq.user) { // if the user is authenticated, add user information to the header
-
-            // custom headers to pass user information to the downstream service
-            proxyReqOpts.headers[
-              "x-user-id"
-            ] = srcReq.user.userId;
-            proxyReqOpts.headers[
-              "x-user-email"
-            ] = srcReq.user.email;
-            proxyReqOpts.headers[
-              "x-user-avatar"
-            ] = srcReq.user.avatar
-
-          }
-
-          return proxyReqOpts;
-
-        }
-
-    }
-  );
-
-}
+      return proxyReqOpts;
+    },
+  });
+};
