@@ -3,186 +3,96 @@ services:
   # Redis
   - type: keyvalue
     name: orbit-redis
-    plan: starter
+    plan: free
     region: singapore
     ipAllowList: []
 
-
   # Auth
-  - type: pserv
+  - type: web
     name: orbit-auth
-    plan: starter
+    plan: free
     region: singapore
     runtime: docker
     dockerContext: ./backend
     dockerfilePath: ./backend/services/auth/Dockerfile
-
-    envVars:
-      - key: NODE_ENV
-        value: production
-
-      - key: PORT
-        value: "8001"
-
-      - key: FRONTEND_URL
-        value: "https://orbit-two-azure.vercel.app"
-
-      - key: COOKIE_SECURE
-        value: "true"
-
-      - key: MONGODB_URL
-        sync: false
-
-      - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: orbit-redis
-          property: connectionString
-
-      - key: FIREBASE_SERVICE_ACCOUNT
-        sync: false
-
-
-  # Chat
-  - type: pserv
-    name: orbit-chat
-    plan: starter
-    region: singapore
-    runtime: docker
-    dockerContext: ./backend
-    dockerfilePath: ./backend/services/chat/Dockerfile
-
-    envVars:
-      - key: NODE_ENV
-        value: production
-
-      - key: PORT
-        value: "8002"
-
-      - key: FRONTEND_URL
-        value: "https://orbit-two-azure.vercel.app"
-
-      - key: MONGODB_URL
-        sync: false
-
-
-  # Billing
-  - type: pserv
-    name: orbit-billing
-    plan: starter
-    region: singapore
-    runtime: docker
-    dockerContext: ./backend
-    dockerfilePath: ./backend/services/billing/Dockerfile
-
-    envVars:
-      - key: NODE_ENV
-        value: production
-
-      - key: PORT
-        value: "8004"
-
-      - key: FRONTEND_URL
-        value: "https://orbit-two-azure.vercel.app"
-
-      - key: MONGODB_URL
-        sync: false
-
-      - key: AUTH_SERVICE_URL
-        sync: false
-
-      - key: RAZORPAY_KEY_ID
-        sync: false
-
-      - key: RAZORPAY_KEY_SECRET
-        sync: false
-
-
-  # Agent
-  - type: pserv
-    name: orbit-agent
-    plan: starter
-    region: singapore
-    runtime: docker
-    dockerContext: ./backend
-    dockerfilePath: ./backend/services/agent/Dockerfile
-
-    envVars:
-      - key: NODE_ENV
-        value: production
-
-      - key: PORT
-        value: "8003"
-
-      - key: FRONTEND_URL
-        value: "https://orbit-two-azure.vercel.app"
-
-      - key: MONGODB_URL
-        sync: false
-
-      - key: REDIS_URL
-        fromService:
-          type: keyvalue
-          name: orbit-redis
-          property: connectionString
-
-      - key: AUTH_SERVICE_URL
-        sync: false
-
-      - key: CHAT_SERVICE_URL
-        sync: false
-
-      - key: BILLING_SERVICE_URL
-        sync: false
-
-      - key: GOOGLE_API_KEY
-        sync: false
-
-      - key: GROQ_API_KEY
-        sync: false
-
-      - key: OPENROUTER_API_KEY
-        sync: false
-
-      - key: TAVILY_API_KEY
-        sync: false
-
-      - key: QDRANT_URL
-        sync: false
-
-      - key: QDRANT_API_KEY
-        sync: false
-
-      - key: CLOUDINARY_CLOUD_NAME
-        sync: false
-
-      - key: CLOUDINARY_API_KEY
-        sync: false
-
-      - key: CLOUDINARY_API_SECRET
-        sync: false
-
-
-  # Gateway
-  - type: web
-    name: orbit-gateway
-    plan: starter
-    region: singapore
-    runtime: docker
-    dockerContext: ./backend
-    dockerfilePath: ./backend/gateway/Dockerfile
-
     healthCheckPath: /health
 
     envVars:
       - key: NODE_ENV
         value: production
-
-      - key: PORT
-        value: "8000"
-
       - key: FRONTEND_URL
-        value: "https://orbit-two-azure.vercel.app"
+        value: https://orbit-two-azure.vercel.app
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: MONGODB_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: orbit-redis
+          property: connectionString
+      - key: FIREBASE_SERVICE_ACCOUNT
+        sync: false
+
+  # Chat
+  - type: web
+    name: orbit-chat
+    plan: free
+    region: singapore
+    runtime: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/services/chat/Dockerfile
+    healthCheckPath: /health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://orbit-two-azure.vercel.app
+      - key: MONGODB_URL
+        sync: false
+
+  # Billing
+  - type: web
+    name: orbit-billing
+    plan: free
+    region: singapore
+    runtime: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/services/billing/Dockerfile
+    healthCheckPath: /health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://orbit-two-azure.vercel.app
+      - key: MONGODB_URL
+        sync: false
+      - key: AUTH_SERVICE_URL
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+
+  # Agent
+  - type: web
+    name: orbit-agent
+    plan: free
+    region: singapore
+    runtime: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/services/agent/Dockerfile
+    healthCheckPath: /health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://orbit-two-azure.vercel.app
+      - key: MONGODB_URL
+        sync: false
 
       - key: REDIS_URL
         fromService:
@@ -192,12 +102,59 @@ services:
 
       - key: AUTH_SERVICE_URL
         sync: false
-
       - key: CHAT_SERVICE_URL
         sync: false
-
-      - key: AGENT_SERVICE_URL
+      - key: BILLING_SERVICE_URL
         sync: false
 
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+  # Gateway
+  - type: web
+    name: orbit-gateway
+    plan: free
+    region: singapore
+    runtime: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/gateway/Dockerfile
+    healthCheckPath: /health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://orbit-two-azure.vercel.app
+
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: orbit-redis
+          property: connectionString
+
+      - key: AUTH_SERVICE_URL
+        sync: false
+      - key: CHAT_SERVICE_URL
+        sync: false
+      - key: AGENT_SERVICE_URL
+        sync: false
       - key: BILLING_SERVICE_URL
         sync: false
