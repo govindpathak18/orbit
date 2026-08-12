@@ -9,7 +9,7 @@ if (!redisUrl) {
     throw new Error("REDIS_URL is not configured");
 }
 
-console.log("🔗 Connecting to Redis:", redisUrl);
+console.log("Connecting to Redis using REDIS_URL");
 
 const redis = new Redis(redisUrl, {
     maxRetriesPerRequest: 3,

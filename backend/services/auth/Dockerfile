@@ -1,12 +1,14 @@
-FROM node
+FROM node:22-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install 
+ENV NODE_ENV=production
 
-COPY ./services/auth/package*.json ./services/auth/
-RUN cd services/auth && npm install
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY services/auth/package*.json ./services/auth/
+RUN cd services/auth && npm ci --omit=dev
 
 COPY services/auth ./services/auth
 COPY shared ./shared

@@ -369,16 +369,8 @@ Title: Conclusion
 
     const buffer = await ppt.write({ outputType: "nodebuffer" });
 
-    await uploadToS3(
-      buffer,
-      fileName,
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-    );
-
-    const downloadUrl = await getDownloadUrl(
-      fileName,
-      24 * 60 * 60
-    );
+    const uploadResult = await uploadToS3(buffer, fileName, "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+    const downloadUrl = await getDownloadUrl(uploadResult.public_id || uploadResult);
 
     return {
       ...state,

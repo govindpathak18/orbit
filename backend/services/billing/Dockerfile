@@ -1,12 +1,14 @@
-FROM node
+FROM node:22-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install 
+ENV NODE_ENV=production
 
-COPY ./services/billing/package*.json ./services/billing/
-RUN cd services/billing && npm install
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY services/billing/package*.json ./services/billing/
+RUN cd services/billing && npm ci --omit=dev
 
 COPY services/billing ./services/billing
 COPY shared ./shared

@@ -69,18 +69,11 @@ ${state.prompt}
 
     const fileName = `image-${Date.now()}.png`;
 
-    // upload the image to s3
-    await uploadToS3(
-      imageBuffer,
-      fileName,
-      "image/png"
-    );
+    // upload the image to Cloudinary
+    const uploadResult = await uploadToS3(imageBuffer, fileName, "image/png");
 
-    // get the image url from s3
-    const downloadUrl = await getDownloadUrl(
-      fileName,
-      24 * 60 * 60
-    );
+    // get the image url (Cloudinary secure_url or built URL)
+    const downloadUrl = await getDownloadUrl(uploadResult.public_id || uploadResult);
 
     return {
       ...state,

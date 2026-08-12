@@ -1,17 +1,206 @@
 services:
+
   redis:
     image: redis:7
-    ports:
-      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth/Dockerfile
+
+    env_file:
+      - ./services/auth/.env
+
+    environment:
+      PORT: 8001
+      NODE_ENV: production
+      REDIS_URL: redis://redis:6379
+
+    volumes:
+      - ./services/auth/serviceAccountKey.json:/app/services/auth/serviceAccountKey.json:ro
+
+    restart: unless-stopped
+
+    depends_on:
+      redis:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://127.0.0.1:8001/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  chat-service:
+    build:
+      context: .
+      dockerfile: services/chat/Dockerfile
+
+    env_file:
+      - ./services/chat/.env
+
+    environment:
+      PORT: 8002
+      NODE_ENV: production
+
+    restart: unless-stopped
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://127.0.0.1:8002/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  billing-service:
+    build:
+      context: .
+      dockerfile: services/billing/Dockerfile
+
+    env_file:
+      - ./services/billing/.env
+
+    environment:
+      PORT: 8004
+      NODE_ENV: production
+      AUTH_SERVICE_URL: http://auth-service:8001
+      AUTH_SERVICE: http://auth-service:8001
+
+    restart: unless-stopped
+
+    depends_on:
+      auth-service:
+        condition: service_started
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://127.0.0.1:8004/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   agent-service:
     build:
       context: .
       dockerfile: services/agent/Dockerfile
+
+    env_file:
+      - ./services/agent/.env
+
     environment:
       PORT: 8003
+      NODE_ENV: production
+
       REDIS_URL: redis://redis:6379
+
+      AUTH_SERVICE_URL: http://auth-service:8001
+      CHAT_SERVICE_URL: http://chat-service:8002
+      BILLING_SERVICE_URL: http://billing-service:8004
+
+      AUTH_SERVICE: http://auth-service:8001
+      CHAT_SERVICE: http://chat-service:8002
+      BILLING_SERVICE: http://billing-service:8004
+
+    restart: unless-stopped
+
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+      chat-service:
+        condition: service_started
+      billing-service:
+        condition: service_started
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://127.0.0.1:8003/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+
+    env_file:
+      - ./gateway/.env
+
+    environment:
+      PORT: 8000
+      NODE_ENV: production
+
+      AUTH_SERVICE_URL: http://auth-service:8001
+      CHAT_SERVICE_URL: http://chat-service:8002
+      AGENT_SERVICE_URL: http://agent-service:8003
+      BILLING_SERVICE_URL: http://billing-service:8004
+
+      AUTH_SERVICE: http://auth-service:8001
+      CHAT_SERVICE: http://chat-service:8002
+      AGENT_SERVICE: http://agent-service:8003
+      BILLING_SERVICE: http://billing-service:8004
+
+      REDIS_URL: redis://redis:6379
+
     ports:
-      - "8003:8003"
+      - "8000:8000"
+
+    restart: unless-stopped
+
+    depends_on:
+      auth-service:
+        condition: service_started
+      chat-service:
+        condition: service_started
+      billing-service:
+        condition: service_started
+      agent-service:
+        condition: service_started
+      redis:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://127.0.0.1:8000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis_data:

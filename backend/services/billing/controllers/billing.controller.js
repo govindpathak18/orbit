@@ -4,6 +4,8 @@ import Payment from "../models/payment.model.js";
 import crypto from "crypto";
 import axios from "axios";
 
+const authServiceUrl = process.env.AUTH_SERVICE_URL || process.env.AUTH_SERVICE;
+
 // creates an order
 export const createOrder = async (req, res) => {
 
@@ -99,7 +101,7 @@ export const verifyPayment = async (req, res) => {
 
         // update the user plan and credits in auth service
         await axios.patch(
-            `${process.env.AUTH_SERVICE}/internal/update-plan`,
+            `${authServiceUrl}/internal/update-plan`,
             {
                 userId: payment.userId,
                 plan: payment.plan,

@@ -1,17 +1,15 @@
 .env
+.env.*
+!.env.example
+
 node_modules
-docker-compose.yml
-
-
 **/node_modules
 
 npm-debug.log
+*.log
 
 .git
 .github
-
-.env
-.env.*
 
 coverage
 dist
@@ -19,6 +17,8 @@ dist
 .vscode
 .idea
 
-*.log
+serviceAccountKey.json
+**/serviceAccountKey.json
 
-Dockerfile
+credentials.json
+**/credentials.json

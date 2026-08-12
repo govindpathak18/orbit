@@ -1,21 +1,18 @@
-import { GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { s3 } from "./s3.js";
+import cloudinary from "./cloudinary.js";
 
-const bucketName = process.env.AWS_BUCKET_NAME;
-if (!bucketName || bucketName === "add AWS bucket name") {
-  throw new Error(
-    "AWS_BUCKET_NAME is not configured properly. Please set a valid S3 bucket name in the environment."
-  );
-}
-
+// fileName is expected to be the Cloudinary public_id or the filename used during upload
 export const getDownloadUrl = async (fileName, expiresIn = 600) => {
-  return await getSignedUrl(
-    s3,
-    new GetObjectCommand({
-      Bucket: bucketName,
-      Key: fileName,
-    }),
-    { expiresIn }
-  );
+  if (!fileName) throw new Error("Invalid file identifier for download");
+
+  // Cloudinary public URLs are public by default (secure_url returned on upload).
+  // Build a URL using the public_id. If the caller passed an object result from uploadToS3, handle that too.
+  if (typeof fileName === "object" && fileName.secure_url) return fileName.secure_url;
+
+  // Try to build URL via cloudinary.utils
+  try {
+    const url = cloudinary.url(fileName, { secure: true, resource_type: "auto" });
+    return url;
+  } catch (err) {
+    throw new Error("Failed to build Cloudinary URL: " + err.message);
+  }
 };

@@ -3,6 +3,8 @@ import { graph } from "../grpah/supervisor.graph.js";
 import { addMessage } from "../utils/memory.js";
 import axios from "axios"
 
+const chatServiceUrl = process.env.CHAT_SERVICE_URL || process.env.CHAT_SERVICE;
+
 export const chat = async (req, res, next) => {
 
   try {
@@ -23,7 +25,7 @@ export const chat = async (req, res, next) => {
     );
 
     // calls save-message route to save the message(prompt)
-    await axios.post(`${process.env.CHAT_SERVICE}/save-message`, {
+    await axios.post(`${chatServiceUrl}/save-message`, {
       conversationId,
       role: "user",
       content: prompt
@@ -49,7 +51,7 @@ export const chat = async (req, res, next) => {
     
     //saves the result message
     await axios.post(
-      `${process.env.CHAT_SERVICE}/save-message`,
+      `${chatServiceUrl}/save-message`,
       {
         conversationId,
         role: "assistant",
