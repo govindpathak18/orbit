@@ -33,7 +33,7 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-app.use("/", router);
+app.use("/api/chat", router);
 
 
 app.listen(port, "0.0.0.0", () => {

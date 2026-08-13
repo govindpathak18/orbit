@@ -33,7 +33,7 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-app.use("/", router);
+app.use("/api/agent", router);
 
 // global error
 app.use((err, req, res, next) => {

@@ -35,20 +35,20 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan("dev"));
 
-app.use("/", router);
+app.use("/api/billing", router);
 
 app.get("/", (req, res) => {
-    res.json({
-        success: true,
-        message: "Billing Service Running"
-    });
+  res.json({
+    success: true,
+    message: "Billing Service Running"
+  });
 });
 
 app.get("/health", (req, res) => {
-    res.status(200).json({ status: "ok" });
+  res.status(200).json({ status: "ok" });
 });
 
 app.listen(port, "0.0.0.0", () => {
-    connectDB()
-    console.log(`🚀 Billing service is running on port ${port}`);
+  connectDB()
+  console.log(`🚀 Billing service is running on port ${port}`);
 });

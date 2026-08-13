@@ -72,7 +72,7 @@ export const verifyPayment = async (req, res) => {
                 process.env.RAZORPAY_KEY_SECRET
             )
             .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-            .digest("hex"); 
+            .digest("hex");
 
         // compare the rcvd and generated signature
         if (generatedSignature !== razorpay_signature) {
@@ -101,7 +101,7 @@ export const verifyPayment = async (req, res) => {
 
         // update the user plan and credits in auth service
         await axios.patch(
-            `${authServiceUrl}/internal/update-plan`,
+            `${authServiceUrl}/api/auth/internal/update-plan`,
             {
                 userId: payment.userId,
                 plan: payment.plan,
@@ -113,7 +113,7 @@ export const verifyPayment = async (req, res) => {
             success: true,
             message: "Payment verified successfully"
         });
-    }catch (error) {
+    } catch (error) {
         console.log(error);
         return res.status(500).json({
             success: false,

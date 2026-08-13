@@ -3,15 +3,15 @@ import axios from "axios";
 const chatServiceUrl = process.env.CHAT_SERVICE_URL || process.env.CHAT_SERVICE;
 
 export const getConversationHistory =
-async(conversationId)=>{
+    async (conversationId) => {
 
- const response =
- await axios.get(
+        const response =
+            await axios.get(
 
- `${chatServiceUrl}/get-messages/${conversationId}`
+                `${chatServiceUrl}/api/chat/get-messages/${conversationId}`
 
- );
+            );
 
- return response.data;
+        return response.data;
 
-};
+    };

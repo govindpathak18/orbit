@@ -25,7 +25,7 @@ export const chat = async (req, res, next) => {
     );
 
     // calls save-message route to save the message(prompt)
-    await axios.post(`${chatServiceUrl}/save-message`, {
+    await axios.post(`${chatServiceUrl}/api/chat/save-message`, {
       conversationId,
       role: "user",
       content: prompt
@@ -34,12 +34,12 @@ export const chat = async (req, res, next) => {
 
     // invoke grpah
     const result = await graph.invoke({
-        prompt,
-        conversationId,
-        userId:req.headers["x-user-id"],
-        agent,
-        file: req.file
-      });
+      prompt,
+      conversationId,
+      userId: req.headers["x-user-id"],
+      agent,
+      file: req.file
+    });
 
 
     // adds the ai response(result) message
@@ -48,10 +48,10 @@ export const chat = async (req, res, next) => {
       "assistant",
       result.response
     );
-    
+
     //saves the result message
     await axios.post(
-      `${chatServiceUrl}/save-message`,
+      `${chatServiceUrl}/api/chat/save-message`,
       {
         conversationId,
         role: "assistant",
@@ -64,9 +64,9 @@ export const chat = async (req, res, next) => {
 
     return res.json({
       success: true,
-      answer:result.response,
+      answer: result.response,
       images: result.images,
-      artifacts:result.artifacts || []
+      artifacts: result.artifacts || []
     });
 
   } catch (error) {

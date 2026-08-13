@@ -6,7 +6,7 @@ import proxy from "express-http-proxy";
 export const proxyWithUser = (serviceUrl) => {
   return proxy(serviceUrl, {
     proxyReqPathResolver: (req) => {
-      return req.originalUrl.replace(/^\/api\/(chat|agent|billing)/, "");
+      return req.originalUrl;
     },
 
     proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
