@@ -228,7 +228,6 @@ function addConclusionSlide(ppt, title, points) {
 
 
 
-
 // ─── Parse AI Response ────────────────────────────────────────────────────────
 
 function parseResponse(content) {
@@ -384,13 +383,22 @@ Title: Conclusion
 ⏳ Link expires in 10 minutes.
 `
     };
-  } catch (error) {
-    console.error("PPT Agent Error:", error);
-    return {
-      ...state,
-      response: `❌ Failed to generate presentation. Error: ${error?.message || "Unknown error"}`,
-    };
-  }
+  }catch (error) {
+  console.error("===== PPT AGENT ERROR =====");
+  console.error("Message:", error?.message);
+  console.error("HTTP code:", error?.http_code);
+  console.error("Status:", error?.status);
+  console.error("Response:", error?.response?.data);
+  console.error("Stack:", error?.stack);
+  console.error("==========================");
+
+  return {
+    ...state,
+    response: `❌ Failed to generate presentation. Error: ${
+      error?.message || "Unknown error"
+    }`,
+  };
+}
 };
 
 // ________________________________________________________________________________
