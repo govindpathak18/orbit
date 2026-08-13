@@ -45,7 +45,7 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-app.use("/", router);
+app.use("/api/auth", router);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Auth service is running on port ${PORT}`);
